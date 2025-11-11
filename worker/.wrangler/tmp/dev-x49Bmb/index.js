@@ -28,7 +28,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
-// .wrangler/tmp/bundle-hsH0KH/checked-fetch.js
+// .wrangler/tmp/bundle-DMNV3j/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -46,7 +46,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  ".wrangler/tmp/bundle-hsH0KH/checked-fetch.js"() {
+  ".wrangler/tmp/bundle-DMNV3j/checked-fetch.js"() {
     "use strict";
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
@@ -4796,11 +4796,11 @@ var require_pako = __commonJS({
   }
 });
 
-// .wrangler/tmp/bundle-hsH0KH/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-DMNV3j/middleware-loader.entry.ts
 init_checked_fetch();
 init_modules_watch_stub();
 
-// .wrangler/tmp/bundle-hsH0KH/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-DMNV3j/middleware-insertion-facade.js
 init_checked_fetch();
 init_modules_watch_stub();
 
@@ -19860,7 +19860,7 @@ var BlendMode;
 var PDFPage = (
   /** @class */
   function() {
-    function PDFPage2(leafNode, ref, doc) {
+    function PDFPage3(leafNode, ref, doc) {
       this.fontSize = 24;
       this.fontColor = rgb(0, 0, 0);
       this.lineHeight = 24;
@@ -19873,17 +19873,17 @@ var PDFPage = (
       this.ref = ref;
       this.doc = doc;
     }
-    __name(PDFPage2, "PDFPage");
-    PDFPage2.prototype.setRotation = function(angle) {
+    __name(PDFPage3, "PDFPage");
+    PDFPage3.prototype.setRotation = function(angle) {
       var degreesAngle = toDegrees(angle);
       assertMultiple(degreesAngle, "degreesAngle", 90);
       this.node.set(PDFName_default.of("Rotate"), this.doc.context.obj(degreesAngle));
     };
-    PDFPage2.prototype.getRotation = function() {
+    PDFPage3.prototype.getRotation = function() {
       var Rotate = this.node.Rotate();
       return degrees(Rotate ? Rotate.asNumber() : 0);
     };
-    PDFPage2.prototype.setSize = function(width, height) {
+    PDFPage3.prototype.setSize = function(width, height) {
       assertIs(width, "width", ["number"]);
       assertIs(height, "height", ["number"]);
       var mediaBox = this.getMediaBox();
@@ -19909,15 +19909,15 @@ var PDFPage = (
         this.setArtBox(mediaBox.x, mediaBox.y, width, height);
       }
     };
-    PDFPage2.prototype.setWidth = function(width) {
+    PDFPage3.prototype.setWidth = function(width) {
       assertIs(width, "width", ["number"]);
       this.setSize(width, this.getSize().height);
     };
-    PDFPage2.prototype.setHeight = function(height) {
+    PDFPage3.prototype.setHeight = function(height) {
       assertIs(height, "height", ["number"]);
       this.setSize(this.getSize().width, height);
     };
-    PDFPage2.prototype.setMediaBox = function(x, y, width, height) {
+    PDFPage3.prototype.setMediaBox = function(x, y, width, height) {
       assertIs(x, "x", ["number"]);
       assertIs(y, "y", ["number"]);
       assertIs(width, "width", ["number"]);
@@ -19925,7 +19925,7 @@ var PDFPage = (
       var mediaBox = this.doc.context.obj([x, y, x + width, y + height]);
       this.node.set(PDFName_default.MediaBox, mediaBox);
     };
-    PDFPage2.prototype.setCropBox = function(x, y, width, height) {
+    PDFPage3.prototype.setCropBox = function(x, y, width, height) {
       assertIs(x, "x", ["number"]);
       assertIs(y, "y", ["number"]);
       assertIs(width, "width", ["number"]);
@@ -19933,7 +19933,7 @@ var PDFPage = (
       var cropBox = this.doc.context.obj([x, y, x + width, y + height]);
       this.node.set(PDFName_default.CropBox, cropBox);
     };
-    PDFPage2.prototype.setBleedBox = function(x, y, width, height) {
+    PDFPage3.prototype.setBleedBox = function(x, y, width, height) {
       assertIs(x, "x", ["number"]);
       assertIs(y, "y", ["number"]);
       assertIs(width, "width", ["number"]);
@@ -19941,7 +19941,7 @@ var PDFPage = (
       var bleedBox = this.doc.context.obj([x, y, x + width, y + height]);
       this.node.set(PDFName_default.BleedBox, bleedBox);
     };
-    PDFPage2.prototype.setTrimBox = function(x, y, width, height) {
+    PDFPage3.prototype.setTrimBox = function(x, y, width, height) {
       assertIs(x, "x", ["number"]);
       assertIs(y, "y", ["number"]);
       assertIs(width, "width", ["number"]);
@@ -19949,7 +19949,7 @@ var PDFPage = (
       var trimBox = this.doc.context.obj([x, y, x + width, y + height]);
       this.node.set(PDFName_default.TrimBox, trimBox);
     };
-    PDFPage2.prototype.setArtBox = function(x, y, width, height) {
+    PDFPage3.prototype.setArtBox = function(x, y, width, height) {
       assertIs(x, "x", ["number"]);
       assertIs(y, "y", ["number"]);
       assertIs(width, "width", ["number"]);
@@ -19957,41 +19957,41 @@ var PDFPage = (
       var artBox = this.doc.context.obj([x, y, x + width, y + height]);
       this.node.set(PDFName_default.ArtBox, artBox);
     };
-    PDFPage2.prototype.getSize = function() {
+    PDFPage3.prototype.getSize = function() {
       var _a = this.getMediaBox(), width = _a.width, height = _a.height;
       return { width, height };
     };
-    PDFPage2.prototype.getWidth = function() {
+    PDFPage3.prototype.getWidth = function() {
       return this.getSize().width;
     };
-    PDFPage2.prototype.getHeight = function() {
+    PDFPage3.prototype.getHeight = function() {
       return this.getSize().height;
     };
-    PDFPage2.prototype.getMediaBox = function() {
+    PDFPage3.prototype.getMediaBox = function() {
       var mediaBox = this.node.MediaBox();
       return mediaBox.asRectangle();
     };
-    PDFPage2.prototype.getCropBox = function() {
+    PDFPage3.prototype.getCropBox = function() {
       var _a;
       var cropBox = this.node.CropBox();
       return (_a = cropBox === null || cropBox === void 0 ? void 0 : cropBox.asRectangle()) !== null && _a !== void 0 ? _a : this.getMediaBox();
     };
-    PDFPage2.prototype.getBleedBox = function() {
+    PDFPage3.prototype.getBleedBox = function() {
       var _a;
       var bleedBox = this.node.BleedBox();
       return (_a = bleedBox === null || bleedBox === void 0 ? void 0 : bleedBox.asRectangle()) !== null && _a !== void 0 ? _a : this.getCropBox();
     };
-    PDFPage2.prototype.getTrimBox = function() {
+    PDFPage3.prototype.getTrimBox = function() {
       var _a;
       var trimBox = this.node.TrimBox();
       return (_a = trimBox === null || trimBox === void 0 ? void 0 : trimBox.asRectangle()) !== null && _a !== void 0 ? _a : this.getCropBox();
     };
-    PDFPage2.prototype.getArtBox = function() {
+    PDFPage3.prototype.getArtBox = function() {
       var _a;
       var artBox = this.node.ArtBox();
       return (_a = artBox === null || artBox === void 0 ? void 0 : artBox.asRectangle()) !== null && _a !== void 0 ? _a : this.getCropBox();
     };
-    PDFPage2.prototype.translateContent = function(x, y) {
+    PDFPage3.prototype.translateContent = function(x, y) {
       assertIs(x, "x", ["number"]);
       assertIs(y, "y", ["number"]);
       this.node.normalize();
@@ -20002,14 +20002,14 @@ var PDFPage = (
       var endRef = this.doc.context.register(end);
       this.node.wrapContentStreams(startRef, endRef);
     };
-    PDFPage2.prototype.scale = function(x, y) {
+    PDFPage3.prototype.scale = function(x, y) {
       assertIs(x, "x", ["number"]);
       assertIs(y, "y", ["number"]);
       this.setSize(this.getWidth() * x, this.getHeight() * y);
       this.scaleContent(x, y);
       this.scaleAnnotations(x, y);
     };
-    PDFPage2.prototype.scaleContent = function(x, y) {
+    PDFPage3.prototype.scaleContent = function(x, y) {
       assertIs(x, "x", ["number"]);
       assertIs(y, "y", ["number"]);
       this.node.normalize();
@@ -20020,7 +20020,7 @@ var PDFPage = (
       var endRef = this.doc.context.register(end);
       this.node.wrapContentStreams(startRef, endRef);
     };
-    PDFPage2.prototype.scaleAnnotations = function(x, y) {
+    PDFPage3.prototype.scaleAnnotations = function(x, y) {
       assertIs(x, "x", ["number"]);
       assertIs(y, "y", ["number"]);
       var annots = this.node.Annots();
@@ -20032,60 +20032,60 @@ var PDFPage = (
           this.scaleAnnot(annot, x, y);
       }
     };
-    PDFPage2.prototype.resetPosition = function() {
+    PDFPage3.prototype.resetPosition = function() {
       this.getContentStream(false);
       this.x = 0;
       this.y = 0;
     };
-    PDFPage2.prototype.setFont = function(font) {
+    PDFPage3.prototype.setFont = function(font) {
       assertIs(font, "font", [[PDFFont_default, "PDFFont"]]);
       this.font = font;
       this.fontKey = this.node.newFontDictionary(this.font.name, this.font.ref);
     };
-    PDFPage2.prototype.setFontSize = function(fontSize) {
+    PDFPage3.prototype.setFontSize = function(fontSize) {
       assertIs(fontSize, "fontSize", ["number"]);
       this.fontSize = fontSize;
     };
-    PDFPage2.prototype.setFontColor = function(fontColor) {
+    PDFPage3.prototype.setFontColor = function(fontColor) {
       assertIs(fontColor, "fontColor", [[Object, "Color"]]);
       this.fontColor = fontColor;
     };
-    PDFPage2.prototype.setLineHeight = function(lineHeight) {
+    PDFPage3.prototype.setLineHeight = function(lineHeight) {
       assertIs(lineHeight, "lineHeight", ["number"]);
       this.lineHeight = lineHeight;
     };
-    PDFPage2.prototype.getPosition = function() {
+    PDFPage3.prototype.getPosition = function() {
       return { x: this.x, y: this.y };
     };
-    PDFPage2.prototype.getX = function() {
+    PDFPage3.prototype.getX = function() {
       return this.x;
     };
-    PDFPage2.prototype.getY = function() {
+    PDFPage3.prototype.getY = function() {
       return this.y;
     };
-    PDFPage2.prototype.moveTo = function(x, y) {
+    PDFPage3.prototype.moveTo = function(x, y) {
       assertIs(x, "x", ["number"]);
       assertIs(y, "y", ["number"]);
       this.x = x;
       this.y = y;
     };
-    PDFPage2.prototype.moveDown = function(yDecrease) {
+    PDFPage3.prototype.moveDown = function(yDecrease) {
       assertIs(yDecrease, "yDecrease", ["number"]);
       this.y -= yDecrease;
     };
-    PDFPage2.prototype.moveUp = function(yIncrease) {
+    PDFPage3.prototype.moveUp = function(yIncrease) {
       assertIs(yIncrease, "yIncrease", ["number"]);
       this.y += yIncrease;
     };
-    PDFPage2.prototype.moveLeft = function(xDecrease) {
+    PDFPage3.prototype.moveLeft = function(xDecrease) {
       assertIs(xDecrease, "xDecrease", ["number"]);
       this.x -= xDecrease;
     };
-    PDFPage2.prototype.moveRight = function(xIncrease) {
+    PDFPage3.prototype.moveRight = function(xIncrease) {
       assertIs(xIncrease, "xIncrease", ["number"]);
       this.x += xIncrease;
     };
-    PDFPage2.prototype.pushOperators = function() {
+    PDFPage3.prototype.pushOperators = function() {
       var operator = [];
       for (var _i = 0; _i < arguments.length; _i++) {
         operator[_i] = arguments[_i];
@@ -20094,7 +20094,7 @@ var PDFPage = (
       var contentStream = this.getContentStream();
       contentStream.push.apply(contentStream, operator);
     };
-    PDFPage2.prototype.drawText = function(text, options) {
+    PDFPage3.prototype.drawText = function(text, options) {
       var _a, _b, _c, _d, _e, _f, _g;
       if (options === void 0) {
         options = {};
@@ -20148,7 +20148,7 @@ var PDFPage = (
           this.resetFont();
       }
     };
-    PDFPage2.prototype.drawImage = function(image, options) {
+    PDFPage3.prototype.drawImage = function(image, options) {
       var _a, _b, _c, _d, _e, _f, _g;
       if (options === void 0) {
         options = {};
@@ -20180,7 +20180,7 @@ var PDFPage = (
         graphicsState: graphicsStateKey
       }));
     };
-    PDFPage2.prototype.drawPage = function(embeddedPage, options) {
+    PDFPage3.prototype.drawPage = function(embeddedPage, options) {
       var _a, _b, _c, _d, _e;
       if (options === void 0) {
         options = {};
@@ -20218,7 +20218,7 @@ var PDFPage = (
         graphicsState: graphicsStateKey
       }));
     };
-    PDFPage2.prototype.drawSvgPath = function(path, options) {
+    PDFPage3.prototype.drawSvgPath = function(path, options) {
       var _a, _b, _c, _d, _e, _f, _g, _h, _j;
       if (options === void 0) {
         options = {};
@@ -20266,7 +20266,7 @@ var PDFPage = (
         graphicsState: graphicsStateKey
       }));
     };
-    PDFPage2.prototype.drawLine = function(options) {
+    PDFPage3.prototype.drawLine = function(options) {
       var _a, _b, _c, _d, _e;
       assertIs(options.start, "options.start", [
         [Object, "{ x: number, y: number }"]
@@ -20304,7 +20304,7 @@ var PDFPage = (
         graphicsState: graphicsStateKey
       }));
     };
-    PDFPage2.prototype.drawRectangle = function(options) {
+    PDFPage3.prototype.drawRectangle = function(options) {
       var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
       if (options === void 0) {
         options = {};
@@ -20357,7 +20357,7 @@ var PDFPage = (
         borderLineCap: (_o = options.borderLineCap) !== null && _o !== void 0 ? _o : void 0
       }));
     };
-    PDFPage2.prototype.drawSquare = function(options) {
+    PDFPage3.prototype.drawSquare = function(options) {
       if (options === void 0) {
         options = {};
       }
@@ -20365,7 +20365,7 @@ var PDFPage = (
       assertOrUndefined(size, "size", ["number"]);
       this.drawRectangle(__assign(__assign({}, options), { width: size, height: size }));
     };
-    PDFPage2.prototype.drawEllipse = function(options) {
+    PDFPage3.prototype.drawEllipse = function(options) {
       var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l;
       if (options === void 0) {
         options = {};
@@ -20414,7 +20414,7 @@ var PDFPage = (
         graphicsState: graphicsStateKey
       }));
     };
-    PDFPage2.prototype.drawCircle = function(options) {
+    PDFPage3.prototype.drawCircle = function(options) {
       if (options === void 0) {
         options = {};
       }
@@ -20422,7 +20422,7 @@ var PDFPage = (
       assertOrUndefined(size, "size", ["number"]);
       this.drawEllipse(__assign(__assign({}, options), { xScale: size, yScale: size }));
     };
-    PDFPage2.prototype.setOrEmbedFont = function(font) {
+    PDFPage3.prototype.setOrEmbedFont = function(font) {
       var oldFont = this.font;
       var oldFontKey = this.fontKey;
       if (font)
@@ -20433,18 +20433,18 @@ var PDFPage = (
       var newFontKey = this.fontKey;
       return { oldFont, oldFontKey, newFont, newFontKey };
     };
-    PDFPage2.prototype.getFont = function() {
+    PDFPage3.prototype.getFont = function() {
       if (!this.font || !this.fontKey) {
         var font = this.doc.embedStandardFont(StandardFonts.Helvetica);
         this.setFont(font);
       }
       return [this.font, this.fontKey];
     };
-    PDFPage2.prototype.resetFont = function() {
+    PDFPage3.prototype.resetFont = function() {
       this.font = void 0;
       this.fontKey = void 0;
     };
-    PDFPage2.prototype.getContentStream = function(useExisting) {
+    PDFPage3.prototype.getContentStream = function(useExisting) {
       if (useExisting === void 0) {
         useExisting = true;
       }
@@ -20455,7 +20455,7 @@ var PDFPage = (
       this.node.addContentStream(this.contentStreamRef);
       return this.contentStream;
     };
-    PDFPage2.prototype.createContentStream = function() {
+    PDFPage3.prototype.createContentStream = function() {
       var operators = [];
       for (var _i = 0; _i < arguments.length; _i++) {
         operators[_i] = arguments[_i];
@@ -20464,7 +20464,7 @@ var PDFPage = (
       var contentStream = PDFContentStream_default.of(dict, operators);
       return contentStream;
     };
-    PDFPage2.prototype.maybeEmbedGraphicsState = function(options) {
+    PDFPage3.prototype.maybeEmbedGraphicsState = function(options) {
       var opacity = options.opacity, borderOpacity = options.borderOpacity, blendMode = options.blendMode;
       if (opacity === void 0 && borderOpacity === void 0 && blendMode === void 0) {
         return void 0;
@@ -20478,7 +20478,7 @@ var PDFPage = (
       var key = this.node.newExtGState("GS", graphicsState);
       return key;
     };
-    PDFPage2.prototype.scaleAnnot = function(annot, x, y) {
+    PDFPage3.prototype.scaleAnnot = function(annot, x, y) {
       var selectors = ["RD", "CL", "Vertices", "QuadPoints", "L", "Rect"];
       for (var idx = 0, len = selectors.length; idx < len; idx++) {
         var list = annot.lookup(PDFName_default.of(selectors[idx]));
@@ -20494,17 +20494,17 @@ var PDFPage = (
         }
       }
     };
-    PDFPage2.of = function(leafNode, ref, doc) {
-      return new PDFPage2(leafNode, ref, doc);
+    PDFPage3.of = function(leafNode, ref, doc) {
+      return new PDFPage3(leafNode, ref, doc);
     };
-    PDFPage2.create = function(doc) {
+    PDFPage3.create = function(doc) {
       assertIs(doc, "doc", [[PDFDocument_default, "PDFDocument"]]);
       var dummyRef = PDFRef_default.of(-1);
       var pageLeaf = PDFPageLeaf_default.withContextAndParent(doc.context, dummyRef);
       var pageRef = doc.context.register(pageLeaf);
-      return new PDFPage2(pageLeaf, pageRef, doc);
+      return new PDFPage3(pageLeaf, pageRef, doc);
     };
-    return PDFPage2;
+    return PDFPage3;
   }()
 );
 var PDFPage_default = PDFPage;
@@ -20628,15 +20628,25 @@ var src_default = {
         const { projectData, documents, selectedDocumentNames, allAvailableDocuments } = await request.json();
         console.log(`Generating packet for: ${projectData.projectName}`);
         console.log(`Processing ${documents.length} documents`);
-        const finalPdf = await loadAndFillTemplate(projectData, selectedDocumentNames || [], allAvailableDocuments || []);
+        const finalPdf = await PDFDocument_default.create();
+        console.log("Loading submittal form template...");
+        const templatePdf = await loadAndFillTemplate(projectData, selectedDocumentNames || [], allAvailableDocuments || []);
+        const submittalFormPages = await finalPdf.copyPages(templatePdf, templatePdf.getPageIndices());
+        submittalFormPages.forEach((page) => finalPdf.addPage(page));
+        console.log(`Added ${submittalFormPages.length} pages from submittal form`);
         await addProductInfoPage(finalPdf, projectData);
-        let currentPageNumber = finalPdf.getPageCount() + 1;
+        const productInfoPageCount = 1;
+        const documentSections = [];
+        const tocPosition = finalPdf.getPageCount();
+        let currentPageNumber = tocPosition + 2;
         for (const doc of documents) {
           try {
             console.log(`Processing: ${doc.name}`);
-            await addDividerPage(finalPdf, doc.name, doc.type, currentPageNumber);
+            const sectionStartPage = currentPageNumber;
+            await addSectionDivider(finalPdf, doc.name, doc.type);
             currentPageNumber++;
             let pdfBytes2 = null;
+            let documentPageCount = 0;
             if (doc.fileData) {
               console.log(`Loading document from embedded data: ${doc.name}`);
               try {
@@ -20663,24 +20673,36 @@ var src_default = {
                   const [copiedPage] = await finalPdf.copyPages(sourcePdf, [pageIndices[i]]);
                   finalPdf.addPage(copiedPage);
                   currentPageNumber++;
+                  documentPageCount++;
                 } catch (pageError) {
                   console.warn(`Failed to copy page ${i + 1} from ${doc.name}:`, pageError);
                   await addErrorPage(finalPdf, doc.name, `Page ${i + 1} could not be processed`);
                   currentPageNumber++;
+                  documentPageCount++;
                 }
               }
               console.log(`Successfully processed ${pageIndices.length} pages from ${doc.name}`);
             } else {
               await addErrorPage(finalPdf, doc.name, "Document could not be loaded");
               currentPageNumber++;
+              documentPageCount++;
             }
+            documentSections.push({
+              name: doc.name,
+              type: doc.type,
+              startPage: sectionStartPage,
+              pageCount: documentPageCount + 1
+              // +1 for divider page
+            });
           } catch (docError) {
             console.error(`Error processing ${doc.name}:`, docError);
             await addErrorPage(finalPdf, doc.name, "Document processing failed");
-            currentPageNumber++;
           }
         }
-        await addPageNumbers(finalPdf);
+        console.log("Creating Table of Contents...");
+        const tocPage = await createTableOfContents(finalPdf, documentSections, tocPosition + 2);
+        finalPdf.insertPage(tocPosition, tocPage);
+        await addSelectivePageNumbers(finalPdf, submittalFormPages.length + productInfoPageCount, documentSections);
         const pdfBytes = await finalPdf.save();
         console.log(`Packet generated successfully: ${pdfBytes.length} bytes`);
         return new Response(pdfBytes, {
@@ -20862,136 +20884,151 @@ async function addCoverPage(pdf, projectData, selectedDocumentNames, allAvailabl
   const mediumGray = rgb(0.27, 0.27, 0.27);
   const lightBlue = rgb(0.9, 0.97, 0.98);
   const borderGray = rgb(0.7, 0.7, 0.7);
+  const headerDark = rgb(0.078, 0.078, 0.078);
+  page.drawRectangle({
+    x: 0,
+    y: height - 80,
+    width,
+    height: 80,
+    color: headerDark
+  });
   try {
-    const logoUrl = "https://raw.githubusercontent.com/karthikeyanasha24/pdf-packet-6/main/public/image.png";
+    const logoUrl = "https://raw.githubusercontent.com/karthikeyanasha24/pdf-packet-6/main/public/image-white.png";
     const logoResponse = await fetch(logoUrl);
     if (logoResponse.ok) {
       const logoBytes = await logoResponse.arrayBuffer();
       const logoImage = await pdf.embedPng(logoBytes);
-      const logoHeight = 25;
-      const logoWidth = logoImage.width / logoImage.height * logoHeight;
+      const logoWidth = 100;
+      const logoHeight = 15;
       page.drawImage(logoImage, {
         x: 50,
-        y: height - 55,
+        y: height - 45 - logoHeight / 2 + 5,
+        // Adjusted for 80px header
         width: logoWidth,
         height: logoHeight
       });
     } else {
       page.drawText("NEXGEN", {
         x: 50,
-        y: height - 50,
-        size: 24,
+        y: height - 45,
+        size: 18,
         font: boldFont,
-        color: nexgenBlue
+        color: rgb(1, 1, 1)
+        // White text
       });
     }
   } catch (error2) {
     console.warn("Failed to load logo, using text fallback:", error2);
     page.drawText("NEXGEN", {
       x: 50,
-      y: height - 50,
-      size: 24,
+      y: height - 45,
+      size: 18,
       font: boldFont,
-      color: nexgenBlue
+      color: rgb(1, 1, 1)
+      // White text
     });
   }
   const sectionText = "SECTION 06 16 26";
   const sectionWidth = font.widthOfTextAtSize(sectionText, 10);
-  page.drawRectangle({
-    x: width - 150,
-    y: height - 60,
-    width: 100,
-    height: 20,
-    color: nexgenBlue
-  });
   page.drawText(sectionText, {
     x: width - 145,
-    y: height - 54,
+    y: height - 45,
     size: 10,
     font: boldFont,
     color: rgb(1, 1, 1)
+    // White text
   });
-  const titleY = height - 100;
+  const titleColor = rgb(0.094, 0.094, 0.098);
   const isStructuralFloor = projectData.productType === "structural-floor";
   if (isStructuralFloor) {
     page.drawText("MAXTERRA\xAE MgO Non-Combustible Structural", {
-      x: 50,
-      y: titleY,
-      size: 12,
+      x: 55,
+      y: height - 147,
+      size: 18,
       font,
-      color: darkGray
+      // Regular font (less bold)
+      color: titleColor,
+      lineHeight: 18
+      // 100% line height
     });
     page.drawText("Floor Panels Submittal Form", {
-      x: 50,
-      y: titleY - 15,
-      size: 12,
+      x: 55,
+      y: height - 167,
+      size: 18,
       font,
-      color: darkGray
+      // Regular font (less bold)
+      color: titleColor,
+      lineHeight: 18
+      // 100% line height
     });
   } else {
     page.drawText("MAXTERRA\xAE MgO Non-Combustible", {
-      x: 50,
-      y: titleY,
-      size: 12,
+      x: 55,
+      y: height - 147,
+      size: 18,
       font,
-      color: darkGray
+      // Regular font (less bold)
+      color: titleColor,
+      lineHeight: 18
+      // 100% line height
     });
     page.drawText("Underlayment Panels Submittal Form", {
-      x: 50,
-      y: titleY - 15,
-      size: 12,
+      x: 55,
+      y: height - 167,
+      size: 18,
       font,
-      color: darkGray
+      // Regular font (less bold)
+      color: titleColor,
+      lineHeight: 18
+      // 100% line height
     });
   }
-  let currentY = titleY - 50;
-  const labelX = 50;
-  const valueX = 200;
-  const fieldHeight = 25;
-  const fieldWidth = width - valueX - 50;
+  let currentY = height - 210;
+  const labelX = 55;
+  const valueX = 155;
+  const fieldHeight = 22;
+  const fieldWidth = width - valueX - 55;
+  const fieldSpacing = 4;
   const drawFormField = /* @__PURE__ */ __name((label, value, y) => {
     page.drawText(label, {
       x: labelX,
-      y: y + 8,
+      y: y + 6,
       size: 10,
-      font,
+      font: boldFont,
+      // Changed to bold font
       color: darkGray
+      // Same color as Status / Action
     });
     page.drawRectangle({
       x: valueX,
       y,
       width: fieldWidth,
       height: fieldHeight,
-      color: lightBlue,
-      borderColor: borderGray,
+      color: rgb(0.95, 0.95, 0.95),
+      // Light gray #F2F2F2
+      borderColor: rgb(0.9, 0.9, 0.9),
       borderWidth: 0.5
     });
     page.drawText(value || "", {
-      x: valueX + 5,
-      y: y + 8,
+      x: valueX + 10,
+      y: y + 6,
       size: 10,
       font,
       color: rgb(0, 0, 0)
     });
-    page.drawLine({
-      start: { x: labelX, y },
-      end: { x: valueX + fieldWidth, y },
-      color: borderGray,
-      thickness: 0.5
-    });
   }, "drawFormField");
   drawFormField("Submitted To", projectData.submittedTo, currentY);
-  currentY -= fieldHeight;
+  currentY -= fieldHeight + fieldSpacing;
   drawFormField("Project Name", projectData.projectName, currentY);
-  currentY -= fieldHeight;
+  currentY -= fieldHeight + fieldSpacing;
   drawFormField("Project Number", projectData.projectNumber || "", currentY);
-  currentY -= fieldHeight;
+  currentY -= fieldHeight + fieldSpacing;
   drawFormField("Prepared By", projectData.preparedBy, currentY);
-  currentY -= fieldHeight;
+  currentY -= fieldHeight + fieldSpacing;
   drawFormField("Phone/Email", `${projectData.phoneNumber} / ${projectData.emailAddress}`, currentY);
-  currentY -= fieldHeight;
+  currentY -= fieldHeight + fieldSpacing;
   drawFormField("Date", projectData.date, currentY);
-  currentY -= fieldHeight + 10;
+  currentY -= fieldHeight + 15;
   page.drawText("Status / Action", {
     x: labelX,
     y: currentY,
@@ -20999,7 +21036,7 @@ async function addCoverPage(pdf, projectData, selectedDocumentNames, allAvailabl
     font: boldFont,
     color: darkGray
   });
-  currentY -= 20;
+  currentY -= 10;
   const checkboxSize = 12;
   const checkboxSpacing = 130;
   let checkboxX = valueX;
@@ -21009,43 +21046,39 @@ async function addCoverPage(pdf, projectData, selectedDocumentNames, allAvailabl
       y,
       width: checkboxSize,
       height: checkboxSize,
-      borderColor: borderGray,
-      borderWidth: 1
+      color: rgb(0.95, 0.95, 0.95),
+      // Light gray background like value fields
+      borderColor: rgb(0.9, 0.9, 0.9),
+      borderWidth: 0.5
     });
     if (checked) {
-      page.drawRectangle({
-        x: x + 2,
-        y: y + 2,
-        width: checkboxSize - 4,
-        height: checkboxSize - 4,
-        color: nexgenBlue
-      });
       page.drawText("X", {
         x: x + 3,
         y: y + 2,
         size: 9,
         font: boldFont,
-        color: rgb(1, 1, 1)
+        color: nexgenBlue
       });
     }
     page.drawText(label, {
       x: x + checkboxSize + 5,
       y: y + 2,
-      size: 9,
+      size: 10,
       font,
-      color: darkGray
+      color: rgb(0, 0, 0)
     });
   }, "drawCheckbox");
-  drawCheckbox("For Review", projectData.status.forReview, checkboxX, currentY);
-  drawCheckbox("For Approval", projectData.status.forApproval, checkboxX + checkboxSpacing, currentY);
+  drawCheckbox("For Review", projectData.status.forReview, checkboxX, currentY + 3);
+  drawCheckbox("For Approval", projectData.status.forApproval, checkboxX + checkboxSpacing, currentY + 3);
   currentY -= 18;
-  drawCheckbox("For Record", projectData.status.forRecord, checkboxX, currentY);
-  drawCheckbox("For Information Only", projectData.status.forInformationOnly, checkboxX + checkboxSpacing, currentY);
+  drawCheckbox("For Record", projectData.status.forRecord, checkboxX, currentY + 3);
+  drawCheckbox("For Information Only", projectData.status.forInformationOnly, checkboxX + checkboxSpacing, currentY + 3);
   currentY -= 30;
   page.drawText("Submittal Type (check all that apply):", {
     x: labelX,
     y: currentY,
-    size: 10,
+    size: 15,
+    // Increased from 10 to 15 (5px increase)
     font: boldFont,
     color: darkGray
   });
@@ -21053,17 +21086,18 @@ async function addCoverPage(pdf, projectData, selectedDocumentNames, allAvailabl
   if (allAvailableDocuments && allAvailableDocuments.length > 0) {
     allAvailableDocuments.forEach((docName) => {
       const isSelected = selectedDocumentNames?.includes(docName) || false;
-      drawCheckbox(docName, isSelected, valueX, currentY);
+      drawCheckbox(docName, isSelected, labelX, currentY);
       currentY -= 16;
     });
   } else if (selectedDocumentNames && selectedDocumentNames.length > 0) {
     selectedDocumentNames.forEach((docName) => {
-      drawCheckbox(docName, true, valueX, currentY);
+      drawCheckbox(docName, true, labelX, currentY);
       currentY -= 16;
     });
   } else {
     page.drawText("No documents available", {
-      x: valueX,
+      x: labelX,
+      // Changed from valueX to labelX
       y: currentY,
       size: 9,
       font,
@@ -21126,129 +21160,6 @@ async function addCoverPage(pdf, projectData, selectedDocumentNames, allAvailabl
   });
 }
 __name(addCoverPage, "addCoverPage");
-async function addDividerPage(pdf, documentName, documentType, pageNumber) {
-  const page = pdf.addPage(PageSizes.Letter);
-  const { width, height } = page.getSize();
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
-  const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const nexgenBlue = rgb(0, 0.637, 0.792);
-  const darkGray = rgb(0.08, 0.08, 0.08);
-  const orange = rgb(0.93, 0.39, 0.15);
-  const white = rgb(1, 1, 1);
-  page.drawRectangle({
-    x: 0,
-    y: 0,
-    width,
-    height,
-    color: rgb(0, 0, 0)
-  });
-  page.drawRectangle({
-    x: 0,
-    y: height - 96.75,
-    width,
-    height: 96.75,
-    color: darkGray
-  });
-  try {
-    const logoUrl = "https://raw.githubusercontent.com/karthikeyanasha24/pdf-packet-6/main/public/image-white.png";
-    const logoResponse = await fetch(logoUrl);
-    if (logoResponse.ok) {
-      const logoBytes = await logoResponse.arrayBuffer();
-      const logoImage = await pdf.embedPng(logoBytes);
-      const logoHeight = 30;
-      const logoWidth = logoImage.width / logoImage.height * logoHeight;
-      page.drawImage(logoImage, {
-        x: 15,
-        y: height - 70,
-        width: logoWidth,
-        height: logoHeight
-      });
-    } else {
-      page.drawText("NEXGEN", {
-        x: 15,
-        y: height - 55,
-        size: 24,
-        font: boldFont,
-        color: nexgenBlue
-      });
-    }
-  } catch (error2) {
-    page.drawText("NEXGEN", {
-      x: 15,
-      y: height - 55,
-      size: 24,
-      font: boldFont,
-      color: nexgenBlue
-    });
-  }
-  page.drawText("Package Section Divider", {
-    x: 15,
-    y: height - 82,
-    size: 9,
-    font,
-    color: rgb(0.5, 0.5, 0.5)
-  });
-  page.drawRectangle({
-    x: 0,
-    y: height - 105.75,
-    width,
-    height: 9,
-    color: orange
-  });
-  page.drawRectangle({
-    x: 0,
-    y: 0,
-    width,
-    height: height - 105.75,
-    color: white
-  });
-  const contentStartY = height - 180;
-  page.drawText("Section Divider", {
-    x: 74,
-    y: contentStartY,
-    size: 32,
-    font,
-    color: rgb(0, 0, 0)
-  });
-  page.drawText(documentName, {
-    x: 74,
-    y: contentStartY - 50,
-    size: 40,
-    font: boldFont,
-    color: rgb(0, 0, 0)
-  });
-  page.drawText(`Page ${pageNumber}`, {
-    x: 42,
-    y: 60,
-    size: 10,
-    font,
-    color: rgb(0.4, 0.4, 0.4)
-  });
-  const footerText = "\xA9 2025 NEXGEN Building Products";
-  const footerWidth = font.widthOfTextAtSize(footerText, 9);
-  page.drawText(footerText, {
-    x: width - footerWidth - 42,
-    y: 40,
-    size: 9,
-    font,
-    color: white
-  });
-  page.drawRectangle({
-    x: 0,
-    y: 0,
-    width,
-    height: 30,
-    color: nexgenBlue
-  });
-  page.drawText(footerText, {
-    x: width / 2 - footerWidth / 2,
-    y: 12,
-    size: 9,
-    font,
-    color: white
-  });
-}
-__name(addDividerPage, "addDividerPage");
 async function addErrorPage(pdf, documentName, errorMessage) {
   const page = pdf.addPage(PageSizes.Letter);
   const { width, height } = page.getSize();
@@ -21284,34 +21195,104 @@ async function addErrorPage(pdf, documentName, errorMessage) {
   });
 }
 __name(addErrorPage, "addErrorPage");
-async function addPageNumbers(pdf) {
-  const pages = pdf.getPages();
-  const font = await pdf.embedFont(StandardFonts.Helvetica);
-  pages.forEach((page, index) => {
-    const { width } = page.getSize();
-    const pageNumber = index + 1;
-    page.drawText(`${pageNumber}`, {
-      x: width - 50,
-      y: 30,
-      size: 10,
-      font,
-      color: rgb(0.4, 0.4, 0.4)
-    });
-  });
-}
-__name(addPageNumbers, "addPageNumbers");
 async function addProductInfoPage(pdf, projectData) {
-  const page = pdf.addPage(PageSizes.Letter);
+  let page = pdf.addPage(PageSizes.Letter);
   const { width, height } = page.getSize();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
   const isStructuralFloor = projectData.productType === "structural-floor";
+  const headerDark = rgb(0.078, 0.078, 0.078);
+  page.drawRectangle({
+    x: 0,
+    y: height - 80,
+    width,
+    height: 80,
+    color: headerDark
+  });
+  try {
+    const logoUrl = "https://raw.githubusercontent.com/karthikeyanasha24/pdf-packet-6/main/public/image-white.png";
+    const logoResponse = await fetch(logoUrl);
+    if (logoResponse.ok) {
+      const logoBytes = await logoResponse.arrayBuffer();
+      const logoImage = await pdf.embedPng(logoBytes);
+      const logoWidth = 100;
+      const logoHeight = 15;
+      page.drawImage(logoImage, {
+        x: 50,
+        y: height - 45 - logoHeight / 2 + 5,
+        width: logoWidth,
+        height: logoHeight
+      });
+    } else {
+      page.drawText("NEXGEN", {
+        x: 50,
+        y: height - 45,
+        size: 18,
+        font: boldFont,
+        color: rgb(1, 1, 1)
+      });
+    }
+  } catch (error2) {
+    page.drawText("NEXGEN", {
+      x: 50,
+      y: height - 45,
+      size: 18,
+      font: boldFont,
+      color: rgb(1, 1, 1)
+    });
+  }
+  const sectionText = isStructuralFloor ? "SECTION 06 16 23" : "SECTION 06 16 26";
+  page.drawText(sectionText, {
+    x: width - 145,
+    y: height - 45,
+    size: 10,
+    font: boldFont,
+    color: rgb(1, 1, 1)
+  });
   const margin = 50;
   const contentWidth = width - margin * 2;
-  let currentY = height - 50;
-  const lineHeight = 12;
-  const sectionSpacing = 18;
-  const paragraphSpacing = 10;
+  let currentY = height - 100;
+  const lineHeight = 14;
+  const sectionSpacing = 20;
+  const paragraphSpacing = 15;
+  const addHeaderToPage = /* @__PURE__ */ __name(async (newPage) => {
+    newPage.drawRectangle({
+      x: 0,
+      y: height - 80,
+      width,
+      height: 80,
+      color: headerDark
+    });
+    try {
+      if (logoImageBytes) {
+        const newLogoImage = await pdf.embedPng(logoImageBytes);
+        const logoWidth = 100;
+        const logoHeight = 15;
+        newPage.drawImage(newLogoImage, {
+          x: 50,
+          y: height - 45 - logoHeight / 2 + 5,
+          width: logoWidth,
+          height: logoHeight
+        });
+      }
+    } catch (error2) {
+      newPage.drawText("NEXGEN", {
+        x: 50,
+        y: height - 45,
+        size: 18,
+        font: boldFont,
+        color: rgb(1, 1, 1)
+      });
+    }
+    const sectionText2 = isStructuralFloor ? "SECTION 06 16 23" : "SECTION 06 16 26";
+    newPage.drawText(sectionText2, {
+      x: width - 145,
+      y: height - 45,
+      size: 10,
+      font: boldFont,
+      color: rgb(1, 1, 1)
+    });
+  }, "addHeaderToPage");
   const drawWrappedText = /* @__PURE__ */ __name((text, x, y, maxWidth, fontSize, fontType) => {
     const words = text.split(" ");
     let line = "";
@@ -21334,7 +21315,15 @@ async function addProductInfoPage(pdf, projectData) {
     return yPos;
   }, "drawWrappedText");
   const drawSectionHeading = /* @__PURE__ */ __name((heading, y) => {
-    page.drawText(heading, { x: margin, y, size: 11, font: boldFont, color: rgb(0, 0, 0) });
+    page.drawText(heading, {
+      x: margin,
+      y,
+      size: 11,
+      font: boldFont,
+      // Semibold weight
+      color: rgb(0.302, 0.298, 0.298)
+      // #4D4C4C
+    });
     return y - sectionSpacing;
   }, "drawSectionHeading");
   if (isStructuralFloor) {
@@ -21347,47 +21336,52 @@ async function addProductInfoPage(pdf, projectData) {
     currentY = drawSectionHeading("Skip-the-Gyp\u2122 & Ditch-the-Deck\u2122 Advantage", currentY);
     currentY = drawWrappedText("MAXTERRA\xAE MgO Non-Combustible Structural Floor Panels are engineered as a single-layer system that delivers a faster, cleaner, and more efficient installation process while achieving code-required STC/IIC sound when installed as part of tested floor/ceiling assemblies. Unlike gypsum cement underlayment or costly and complex pan-and-pour systems, MAXTERRA\xAE panels eliminate the need for a separate wet-floor trades, door header or base plate modifications, added project oversight, and lengthy cure times that can delay or halt construction schedules. The result is a streamlined, single-trade solution that ensures reliable fire, sound, and structural performance across all types of high-demand projects.", margin, currentY, contentWidth, 9, font);
     currentY -= paragraphSpacing;
-    if (currentY < 200) {
-      const page2 = pdf.addPage(PageSizes.Letter);
-      currentY = height - 50;
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter);
+      await addHeaderToPage(page);
+      currentY = height - 110;
     }
-    currentY -= 10;
-    const col1X = margin;
-    const col2X = width / 2 + 20;
-    const colWidth = width / 2 - margin - 30;
-    let leftY = currentY;
-    leftY = drawSectionHeading("Available Thicknesses", leftY);
-    page.drawText("3/4-inch (20 mm)", { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) });
-    leftY -= sectionSpacing;
-    leftY = drawSectionHeading("Available Lengths", leftY);
-    page.drawText("8 feet; 10 feet", { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) });
-    leftY -= sectionSpacing;
-    leftY = drawSectionHeading("Product Weight", leftY);
-    page.drawText("4.92 lb/sqft", { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) });
-    leftY -= sectionSpacing;
-    leftY = drawSectionHeading("Edge Profile", leftY);
-    page.drawText("Tongue & Groove (TG), & Square Edge (SE)*", { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) });
-    leftY -= sectionSpacing;
-    leftY = drawSectionHeading("Mold / Mildew Resistance (ASTM G21)", leftY);
-    page.drawText('"0 Growth Observed"', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) });
-    leftY -= sectionSpacing;
-    let rightY = currentY;
-    rightY = drawSectionHeading("Surface Burning Characteristics", rightY);
-    page.drawText("(ASTM E84 / UL 723)", { x: col2X, y: rightY, size: 8, font, color: rgb(0.3, 0.3, 0.3) });
-    rightY -= 12;
-    page.drawText("Flame Spread Index: 0", { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) });
-    rightY -= 12;
-    page.drawText("Smoke Developed Index: 0", { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) });
-    rightY -= sectionSpacing;
-    rightY = drawSectionHeading("STC / IIC Acoustic Performance", rightY);
-    page.drawText("(ASTM E90 and ASTM E492)", { x: col2X, y: rightY, size: 8, font, color: rgb(0.3, 0.3, 0.3) });
-    rightY -= 12;
-    page.drawText("See ESL-1645", { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) });
-    rightY -= sectionSpacing;
-    rightY = drawSectionHeading("Allowable Exposure", rightY);
-    page.drawText("Up to 200 days", { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) });
-    rightY -= sectionSpacing;
-    currentY = Math.min(leftY, rightY) - 20;
+    currentY = drawSectionHeading("Availability", currentY);
+    currentY = drawWrappedText("MAXTERRA\xAE MgO Non-Combustible Structural Floor Panels are available through NEXGEN Building Products authorized distribution partners nationwide. For purchasing information, technical support, or to locate a distributor near you, visit www.nexgenbp.com/find-rep-or-distributor or contact NEXGEN Building Products directly +1(727)620-3334.", margin, currentY, contentWidth, 9, font);
+    currentY -= paragraphSpacing;
+    currentY = drawSectionHeading("Sound Attenuation", currentY);
+    currentY = drawWrappedText("MAXTERRA\xAE MgO Non-Combustible Structural Floor Panels have been evaluated in floor/ceiling assemblies for Sound Transmission Class (STC) in accordance with ASTM E90, and Impact Insulation Class (IIC) in accordance with ASTM E492. Evaluated assemblies are detailed in ICC-ES Listing Report ESL-1645.", margin, currentY, contentWidth, 9, font);
+    currentY -= 8;
+    currentY = drawWrappedText("Please visit NEXGEN Building Products resource page to find most up-to-date assemblies:", margin, currentY, contentWidth, 9, font);
+    currentY -= 8;
+    currentY = drawWrappedText("www.nexgenbp.com/resources", margin, currentY, contentWidth, 9, font);
+    currentY -= paragraphSpacing;
+    currentY = drawSectionHeading("Fire Resistance", currentY);
+    currentY = drawWrappedText("MAXTERRA\xAE MgO Non-Combustible Structural Floor Panels have been evaluated in floor/ceiling assemblies for fire-resistance in accordance with ASTM E119 (Standard Test Methods for Fire Tests of Building Construction and Materials) and ANSI/UL 263 (Fire Tests of Building Construction and Materials). Evaluated assemblies include: UL H501, UL H505, UL H515, UL H524, UL L502, UL L525, UL L528, & UL M500.", margin, currentY, contentWidth, 9, font);
+    currentY -= 8;
+    currentY = drawWrappedText("Please visit NEXGEN Building Products resource page to find most up-to-date assemblies:", margin, currentY, contentWidth, 9, font);
+    currentY -= 8;
+    currentY = drawWrappedText("www.nexgenbp.com/resources", margin, currentY, contentWidth, 9, font);
+    currentY -= paragraphSpacing;
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter);
+      await addHeaderToPage(page);
+      currentY = height - 110;
+    }
+    currentY = drawSectionHeading("Floor Covering", currentY);
+    currentY = drawWrappedText("Many types of finished floor coverings can be installed over MAXTERRA\xAE MgO Non-Combustible Structural Floor Panels. Before applying any floor covering, always check the flooring manufacturer's installation requirements and confirm compatibility with the substrate. Follow all requirements for primers, adhesives, mortars, self-levelers, underlayment, and related materials. Floor coverings commonly installed over MAXTERRA\xAE panels include (but are not limited to): Engineered wood flooring, Vinyl, LVP, LVT, Carpet, & Tile (tile requires an additional tile backer underlayment). Refer to the MAXTERRA\xAE MgO Non-Combustible Structural Floor Installation Guide for complete information regarding finished flooring installation: www.nexgenbp.com/resources", margin, currentY, contentWidth, 9, font);
+    currentY -= paragraphSpacing;
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter);
+      await addHeaderToPage(page);
+      currentY = height - 110;
+    }
+    currentY = drawSectionHeading("Fasteners", currentY);
+    currentY = drawWrappedText("Fasteners used with MAXTERRA\xAE MgO Non-Combustible Structural Floor Panels must be code-recognized and inherently resistant to corrosion, or factory-coated for corrosion resistance (electro-galvanized or better). Use only approved fasteners suitable for the specific assembly and substrate to ensure long-term performance.", margin, currentY, contentWidth, 9, font);
+    currentY -= 8;
+    currentY = drawWrappedText("Refer to the MAXTERRA\xAE MgO Non-Combustible Structural Floor Installation Guide for complete information regarding fastener schedules: www.nexgenbp.com/resources", margin, currentY, contentWidth, 9, font);
+    currentY -= paragraphSpacing;
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter);
+      await addHeaderToPage(page);
+      currentY = height - 110;
+    }
+    currentY -= 20;
     currentY = drawSectionHeading("Remarks", currentY);
     page.drawRectangle({ x: margin, y: currentY - 40, width: contentWidth, height: 35, borderColor: rgb(0, 0, 0), borderWidth: 1 });
     currentY -= 50;
@@ -21413,53 +21407,61 @@ async function addProductInfoPage(pdf, projectData) {
     currentY = drawWrappedText("MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Panels are engineered to deliver superior fire resistance, acoustic performance, and dimensional stability for today's demanding job sites. Manufactured from magnesium oxide (MgO) with reinforcing glass fiber mesh, MAXTERRA\xAE panels provide a high-density, fire-resistant solution. They are designed for use as flooring underlayment over wood structural panels, serving as a durable replacement for other underlayment products such as wet-laid gypsum in both sound- and fire-rated assemblies.", margin, currentY, contentWidth, 9, font);
     currentY -= paragraphSpacing;
     currentY = drawSectionHeading("Applications", currentY);
-    currentY = drawWrappedText("MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Panels are engineered and tested for use across a wide range of flooring underlayment applications, delivering proven performance in sound control, fire resistance, and structural durability. MAXTERRA\xAE provides a more durable and dimensionally stable solution and is ideally suited for multifamily, hospitality, modular, and other high-performance construction projects. MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Panels are recognized by the International Code Council Evaluation Service (ICC-ES) under Evaluation Report ESR-5192 and Listing Report ESL-1645.", margin, currentY, contentWidth, 9, font);
+    currentY = drawWrappedText("MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Panels are engineered and tested for use across a wide range of flooring underlayment applications, delivering proven performance in sound control, fire resistance, and structural durability. MAXTERRA\xAE provides a more durable and dimensionally stable solution and is ideally suited for multifamily, hospitality, modular, and other high-performance construction projects.", margin, currentY, contentWidth, 9, font);
+    currentY -= 8;
+    currentY = drawWrappedText("MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Panels are recognized by the International Code Council Evaluation Service (ICC-ES) under Evaluation Report ESR-5192 and Listing Report ESL-1645.", margin, currentY, contentWidth, 9, font);
     currentY -= paragraphSpacing;
     currentY = drawSectionHeading("Skip-the-Gyp\u2122 Advantage", currentY);
     currentY = drawWrappedText("MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Panels are engineered to achieve code-required STC/IIC sound ratings without the need for gypsum cement underlayment or sound mats, when installed as part of tested floor/ceiling assemblies. Unlike gypsum cement, MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Panels eliminate the need for a separate gypsum underlayment trade, additional sill plates, modifications to door headers, and additional project oversight \u2013 all while avoiding long cure times, cleanup, and callbacks that can delay or halt construction schedules. The result is a faster, cleaner, and more efficient installation process with reliable performance.", margin, currentY, contentWidth, 9, font);
     currentY -= paragraphSpacing;
-    if (currentY < 200) {
-      const page2 = pdf.addPage(PageSizes.Letter);
-      currentY = height - 50;
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter);
+      await addHeaderToPage(page);
+      currentY = height - 110;
     }
-    currentY -= 10;
-    const col1X = margin;
-    const col2X = width / 2 + 20;
-    let leftY = currentY;
-    leftY = drawSectionHeading("Available Thicknesses", leftY);
-    page.drawText('1/2" (12 mm), & 5/8" (16 mm)', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) });
-    leftY -= sectionSpacing;
-    leftY = drawSectionHeading("Available Dimensions", leftY);
-    page.drawText("4 feet x 8 feet", { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) });
-    leftY -= sectionSpacing;
-    leftY = drawSectionHeading("Product Weight", leftY);
-    page.drawText('1/2" (12 mm): 2.22 lb/sqft', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) });
-    leftY -= 12;
-    page.drawText('5/8" (16 mm): 2.95 lb/sqft', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) });
-    leftY -= sectionSpacing;
-    leftY = drawSectionHeading("Edge Profile", leftY);
-    page.drawText("Square Edge (SE)", { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) });
-    leftY -= sectionSpacing;
-    leftY = drawSectionHeading("Construction Types", leftY);
-    page.drawText("Types III, IV-C, IV-HT, and V", { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) });
-    leftY -= sectionSpacing;
-    let rightY = currentY;
-    rightY = drawSectionHeading("Surface Burning Characteristics", rightY);
-    page.drawText("(ASTM E84 / UL 723)", { x: col2X, y: rightY, size: 8, font, color: rgb(0.3, 0.3, 0.3) });
-    rightY -= 12;
-    page.drawText("Flame Spread Index: 0", { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) });
-    rightY -= 12;
-    page.drawText("Smoke Developed Index: 0", { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) });
-    rightY -= sectionSpacing;
-    rightY = drawSectionHeading("STC / IIC Acoustic Performance", rightY);
-    page.drawText("(ASTM E90 and ASTM E492)", { x: col2X, y: rightY, size: 8, font, color: rgb(0.3, 0.3, 0.3) });
-    rightY -= 12;
-    page.drawText("See ESL-1645", { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) });
-    rightY -= sectionSpacing;
-    rightY = drawSectionHeading("Allowable Exposure", rightY);
-    page.drawText("Up to 200 days", { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) });
-    rightY -= sectionSpacing;
-    currentY = Math.min(leftY, rightY) - 20;
+    currentY = drawSectionHeading("Availability", currentY);
+    currentY = drawWrappedText("MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Panels are available through NEXGEN Building Products authorized distribution partners nationwide. For purchasing information, technical support, or to locate a distributor near you, visit www.nexgenbp.com/find-rep-or-distributor or contact NEXGEN Building Products directly +1(727)620-3334.", margin, currentY, contentWidth, 9, font);
+    currentY -= paragraphSpacing;
+    currentY = drawSectionHeading("Sound Attenuation", currentY);
+    currentY = drawWrappedText("MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Panels have been evaluated in floor/ceiling assemblies for Sound Transmission Class (STC) in accordance with ASTM E90, and Impact Insulation Class (IIC) in accordance with ASTM E492. Evaluated assemblies for underlayment are detailed in Report ESL-1645.", margin, currentY, contentWidth, 9, font);
+    currentY -= 8;
+    currentY = drawWrappedText("Please visit NEXGEN Building Products resource page to find most up-to-date assemblies:", margin, currentY, contentWidth, 9, font);
+    currentY -= 8;
+    currentY = drawWrappedText("www.nexgenbp.com/resources", margin, currentY, contentWidth, 9, font);
+    currentY -= paragraphSpacing;
+    currentY = drawSectionHeading("Fire Resistance", currentY);
+    currentY = drawWrappedText("MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Panels have been evaluated in floor/ceiling assemblies for fire-resistance in accordance with ASTM E119 (Standard Test Methods for Fire Tests of Building Construction and Materials) and ANSI/UL 263 (Fire Tests of Building Construction and Materials). UL L501, UL L502, UL L525, UL L528, UL L570, UL L602, & UL M500.", margin, currentY, contentWidth, 9, font);
+    currentY -= 8;
+    currentY = drawWrappedText("Please visit NEXGEN Building Products resource page to find most up-to-date assemblies:", margin, currentY, contentWidth, 9, font);
+    currentY -= 8;
+    currentY = drawWrappedText("www.nexgenbp.com/resources", margin, currentY, contentWidth, 9, font);
+    currentY -= paragraphSpacing;
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter);
+      await addHeaderToPage(page);
+      currentY = height - 110;
+    }
+    currentY = drawSectionHeading("Floor Covering", currentY);
+    currentY = drawWrappedText("Many types of finished floor coverings can be installed over MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Panels. Before applying any floor covering, always check the flooring manufacturer's installation requirements and confirm compatibility with the substrate. Follow all requirements for primers, adhesives, mortars, feathering compounds, and related materials.", margin, currentY, contentWidth, 9, font);
+    currentY -= 8;
+    currentY = drawWrappedText("Floor coverings commonly installed over MAXTERRA\xAE panels include (but are not limited to): Carpet, Engineered wood flooring, Vinyl, LVP, LVT, & Tile (tile requires an additional tile backer underlayment).", margin, currentY, contentWidth, 9, font);
+    currentY -= 8;
+    currentY = drawWrappedText("Refer to the MAXTERRA\xAE Underlayment Installation Manual for complete information regarding finished flooring installation.", margin, currentY, contentWidth, 9, font);
+    currentY -= paragraphSpacing;
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter);
+      await addHeaderToPage(page);
+      currentY = height - 110;
+    }
+    currentY = drawSectionHeading("Fasteners", currentY);
+    currentY = drawWrappedText("Fasteners used with MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Panels must be code-recognized and inherently resistant to corrosion, or factory-coated for corrosion resistance (electro-galvanized or better). Use only approved fasteners suitable for the specific assembly and substrate to ensure long-term performance. Refer to the MAXTERRA\xAE MgO Fire- And Water-Resistant Underlayment Installation Manual for complete information regarding fastener schedules.", margin, currentY, contentWidth, 9, font);
+    currentY -= paragraphSpacing;
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter);
+      await addHeaderToPage(page);
+      currentY = height - 110;
+    }
+    currentY -= 20;
     currentY = drawSectionHeading("Remarks", currentY);
     page.drawRectangle({ x: margin, y: currentY - 40, width: contentWidth, height: 35, borderColor: rgb(0, 0, 0), borderWidth: 1 });
     currentY -= 50;
@@ -21483,6 +21485,224 @@ async function addProductInfoPage(pdf, projectData) {
   }
 }
 __name(addProductInfoPage, "addProductInfoPage");
+async function createTableOfContents(pdf, sections, tocPageNumber) {
+  const page = pdf.addPage(PageSizes.Letter);
+  const { width, height } = page.getSize();
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const headerDark = rgb(0.078, 0.078, 0.078);
+  page.drawRectangle({
+    x: 0,
+    y: height - 80,
+    width,
+    height: 80,
+    color: headerDark
+  });
+  try {
+    const logoUrl = "https://raw.githubusercontent.com/karthikeyanasha24/pdf-packet-6/main/public/image-white.png";
+    const logoResponse = await fetch(logoUrl);
+    if (logoResponse.ok) {
+      const logoBytes = await logoResponse.arrayBuffer();
+      const logoImage = await pdf.embedPng(logoBytes);
+      page.drawImage(logoImage, {
+        x: 50,
+        y: height - 45 - 15 / 2 + 5,
+        width: 100,
+        height: 15
+      });
+    }
+  } catch (error2) {
+    page.drawText("NEXGEN", {
+      x: 50,
+      y: height - 45,
+      size: 18,
+      font: boldFont,
+      color: rgb(1, 1, 1)
+    });
+  }
+  page.drawText("Table of Contents", {
+    x: width - 180,
+    y: height - 45,
+    size: 11,
+    font: boldFont,
+    color: rgb(1, 1, 1)
+  });
+  let currentY = height - 110;
+  const margin = 50;
+  const lineHeight = 25;
+  page.drawText("Table of Contents", {
+    x: margin,
+    y: currentY,
+    size: 18,
+    font: boldFont,
+    color: rgb(0.094, 0.094, 0.098)
+    // #181819 - same as main titles
+  });
+  currentY -= 30;
+  sections.forEach((section) => {
+    if (currentY < 100) {
+      return;
+    }
+    const maxNameWidth = width - 200;
+    let displayName = section.name;
+    const nameWidth = font.widthOfTextAtSize(displayName, 11);
+    if (nameWidth > maxNameWidth) {
+      while (font.widthOfTextAtSize(displayName + "...", 11) > maxNameWidth && displayName.length > 10) {
+        displayName = displayName.substring(0, displayName.length - 1);
+      }
+      displayName += "...";
+    }
+    page.drawText(displayName, {
+      x: margin,
+      y: currentY,
+      size: 11,
+      font,
+      color: rgb(0, 0, 0)
+    });
+    const dots = ".";
+    const dotsStartX = margin + font.widthOfTextAtSize(displayName, 11) + 10;
+    const dotsEndX = width - 100;
+    const dotsWidth = font.widthOfTextAtSize(dots, 11);
+    let currentX = dotsStartX;
+    while (currentX < dotsEndX) {
+      page.drawText(dots, {
+        x: currentX,
+        y: currentY,
+        size: 11,
+        font,
+        color: rgb(0.6, 0.6, 0.6)
+      });
+      currentX += dotsWidth + 3;
+    }
+    page.drawText(`Page ${section.startPage}`, {
+      x: width - 90,
+      y: currentY,
+      size: 11,
+      font: boldFont,
+      color: rgb(0, 0, 0)
+    });
+    currentY -= lineHeight;
+  });
+  return page;
+}
+__name(createTableOfContents, "createTableOfContents");
+async function addSectionDivider(pdf, documentName, documentType) {
+  const page = pdf.addPage(PageSizes.Letter);
+  const { width, height } = page.getSize();
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const headerDark = rgb(0.078, 0.078, 0.078);
+  page.drawRectangle({
+    x: 0,
+    y: height - 80,
+    width,
+    height: 80,
+    color: headerDark
+  });
+  try {
+    const logoUrl = "https://raw.githubusercontent.com/karthikeyanasha24/pdf-packet-6/main/public/image-white.png";
+    const logoResponse = await fetch(logoUrl);
+    if (logoResponse.ok) {
+      const logoBytes = await logoResponse.arrayBuffer();
+      const logoImage = await pdf.embedPng(logoBytes);
+      page.drawImage(logoImage, {
+        x: 50,
+        y: height - 45 - 15 / 2 + 5,
+        width: 100,
+        height: 15
+      });
+    }
+  } catch (error2) {
+    page.drawText("NEXGEN", {
+      x: 50,
+      y: height - 45,
+      size: 18,
+      font: boldFont,
+      color: rgb(1, 1, 1)
+    });
+  }
+  page.drawText("Document Section", {
+    x: width - 180,
+    y: height - 45,
+    size: 11,
+    font,
+    color: rgb(1, 1, 1)
+  });
+  const centerY = height / 2;
+  const nameSize = 24;
+  const nameWidth = boldFont.widthOfTextAtSize(documentName, nameSize);
+  page.drawText(documentName, {
+    x: (width - nameWidth) / 2,
+    y: centerY + 20,
+    size: nameSize,
+    font: boldFont,
+    color: rgb(0.13, 0.13, 0.13)
+  });
+  const typeSize = 14;
+  const typeWidth = font.widthOfTextAtSize(documentType, typeSize);
+  page.drawText(documentType, {
+    x: (width - typeWidth) / 2,
+    y: centerY - 20,
+    size: typeSize,
+    font,
+    color: rgb(0.4, 0.4, 0.4)
+  });
+  const lineWidth = 200;
+  page.drawLine({
+    start: { x: (width - lineWidth) / 2, y: centerY - 50 },
+    end: { x: (width + lineWidth) / 2, y: centerY - 50 },
+    thickness: 2,
+    color: rgb(0, 0.637, 0.792)
+    // NexGen blue
+  });
+}
+__name(addSectionDivider, "addSectionDivider");
+async function addSelectivePageNumbers(pdf, submittalAndProductInfoPageCount, sections) {
+  const pages = pdf.getPages();
+  const font = await pdf.embedFont(StandardFonts.Helvetica);
+  let globalPageNumber = 1;
+  for (let i = 0; i < submittalAndProductInfoPageCount && i < pages.length; i++) {
+    const page = pages[i];
+    const { width } = page.getSize();
+    page.drawText(`${globalPageNumber}`, {
+      x: width - 50,
+      y: 30,
+      size: 10,
+      font,
+      color: rgb(0.4, 0.4, 0.4)
+    });
+    globalPageNumber++;
+  }
+  if (pages.length > submittalAndProductInfoPageCount) {
+    const tocPage = pages[submittalAndProductInfoPageCount];
+    const { width } = tocPage.getSize();
+    tocPage.drawText(`${globalPageNumber}`, {
+      x: width - 50,
+      y: 30,
+      size: 10,
+      font,
+      color: rgb(0.4, 0.4, 0.4)
+    });
+    globalPageNumber++;
+  }
+  let currentIndex = submittalAndProductInfoPageCount + 1;
+  sections.forEach((section) => {
+    if (currentIndex < pages.length) {
+      const dividerPage = pages[currentIndex];
+      const { width } = dividerPage.getSize();
+      dividerPage.drawText(`${globalPageNumber}`, {
+        x: width - 50,
+        y: 30,
+        size: 10,
+        font,
+        color: rgb(0.4, 0.4, 0.4)
+      });
+      globalPageNumber++;
+      currentIndex += section.pageCount;
+    }
+  });
+}
+__name(addSelectivePageNumbers, "addSelectivePageNumbers");
 
 // ../../../../AppData/Roaming/npm/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
 init_checked_fetch();
@@ -21529,7 +21749,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-hsH0KH/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-DMNV3j/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -21563,7 +21783,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-hsH0KH/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-DMNV3j/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

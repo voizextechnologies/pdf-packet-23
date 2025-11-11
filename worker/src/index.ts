@@ -1,4 +1,4 @@
-import { PDFDocument, rgb, StandardFonts, PageSizes } from 'pdf-lib'
+import { PDFDocument, PDFPage, rgb, StandardFonts, PageSizes } from 'pdf-lib'
 
 export interface Env {
   // Define your environment variables here
@@ -54,6 +54,13 @@ interface GeneratePacketRequest {
   allAvailableDocuments?: string[]; // All documents from category (checked or unchecked)
 }
 
+interface DocumentSection {
+  name: string;
+  type: string;
+  startPage: number;
+  pageCount: number;
+}
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     // Handle CORS
@@ -74,25 +81,42 @@ export default {
         console.log(`Generating packet for: ${projectData.projectName}`)
         console.log(`Processing ${documents.length} documents`)
 
-        // Load the template PDF and fill it
-        const finalPdf = await loadAndFillTemplate(projectData, selectedDocumentNames || [], allAvailableDocuments || [])
+        // Create a new PDF document
+        const finalPdf = await PDFDocument.create()
 
-        // Add product information page after cover page
+        // STEP 1: Load and add the 4-page submittal form template
+        console.log('Loading submittal form template...')
+        const templatePdf = await loadAndFillTemplate(projectData, selectedDocumentNames || [], allAvailableDocuments || [])
+        const submittalFormPages = await finalPdf.copyPages(templatePdf, templatePdf.getPageIndices())
+        submittalFormPages.forEach(page => finalPdf.addPage(page))
+        console.log(`Added ${submittalFormPages.length} pages from submittal form`)
+
+        // STEP 2: Add product information page
         await addProductInfoPage(finalPdf, projectData)
+        const productInfoPageCount = 1
 
-        let currentPageNumber = finalPdf.getPageCount() + 1 // Start after template pages
+        // Track document sections for Table of Contents
+        const documentSections: DocumentSection[] = []
 
-        // Process each document
+        // STEP 3: Reserve space for Table of Contents (will be inserted later)
+        const tocPosition = finalPdf.getPageCount()
+        let currentPageNumber = tocPosition + 2 // TOC will be at tocPosition+1, so sections start at +2
+
+        // STEP 4: Process each document with section dividers
         for (const doc of documents) {
           try {
             console.log(`Processing: ${doc.name}`)
 
-            // Add divider page
-            await addDividerPage(finalPdf, doc.name, doc.type, currentPageNumber)
+            // Record the start page for this section (the divider page)
+            const sectionStartPage = currentPageNumber
+
+            // Add section divider page
+            await addSectionDivider(finalPdf, doc.name, doc.type)
             currentPageNumber++
 
             // Get PDF bytes - either from fileData or URL
             let pdfBytes: ArrayBuffer | null = null
+            let documentPageCount = 0
             
             if (doc.fileData) {
               // Uploaded document - decode base64
@@ -125,11 +149,12 @@ export default {
                   const [copiedPage] = await finalPdf.copyPages(sourcePdf, [pageIndices[i]])
                   finalPdf.addPage(copiedPage)
                   currentPageNumber++
+                  documentPageCount++
                 } catch (pageError) {
                   console.warn(`Failed to copy page ${i + 1} from ${doc.name}:`, pageError)
-                  // Add error page instead
                   await addErrorPage(finalPdf, doc.name, `Page ${i + 1} could not be processed`)
                   currentPageNumber++
+                  documentPageCount++
                 }
               }
 
@@ -138,16 +163,30 @@ export default {
               // Add error page if PDF couldn't be loaded
               await addErrorPage(finalPdf, doc.name, 'Document could not be loaded')
               currentPageNumber++
+              documentPageCount++
             }
+
+            // Record this document section for TOC
+            documentSections.push({
+              name: doc.name,
+              type: doc.type,
+              startPage: sectionStartPage,
+              pageCount: documentPageCount + 1 // +1 for divider page
+            })
+
           } catch (docError) {
             console.error(`Error processing ${doc.name}:`, docError)
             await addErrorPage(finalPdf, doc.name, 'Document processing failed')
-            currentPageNumber++
           }
         }
 
-        // Add page numbers to all pages
-        await addPageNumbers(finalPdf)
+        // STEP 5: Insert Table of Contents at the reserved position
+        console.log('Creating Table of Contents...')
+        const tocPage = await createTableOfContents(finalPdf, documentSections, tocPosition + 2)
+        finalPdf.insertPage(tocPosition, tocPage)
+
+        // STEP 6: Add selective page numbers (submittal form + product info + TOC + section dividers only)
+        await addSelectivePageNumbers(finalPdf, submittalFormPages.length + productInfoPageCount, documentSections)
 
         // Generate final PDF
         const pdfBytes = await finalPdf.save()
@@ -374,165 +413,167 @@ async function addCoverPage(pdf: PDFDocument, projectData: ProjectData, selected
   const mediumGray = rgb(0.27, 0.27, 0.27); // #444445
   const lightBlue = rgb(0.9, 0.97, 0.98); // Light blue tint for form backgrounds
   const borderGray = rgb(0.7, 0.7, 0.7);
+  const headerDark = rgb(0.078, 0.078, 0.078); // #141414 - Dark header bar
 
-  // NEXGEN Logo Header (top left) - Embed PNG logo
+  // Dark header bar at the top (full width, 80px height - reduced size)
+  page.drawRectangle({
+    x: 0,
+    y: height - 80,
+    width: width,
+    height: 80,
+    color: headerDark,
+  });
+
+  // NEXGEN Logo Header - White logo at specified position
   try {
-    const logoUrl = 'https://raw.githubusercontent.com/karthikeyanasha24/pdf-packet-6/main/public/image.png';
+    const logoUrl = 'https://raw.githubusercontent.com/karthikeyanasha24/pdf-packet-6/main/public/image-white.png';
     const logoResponse = await fetch(logoUrl);
     if (logoResponse.ok) {
       const logoBytes = await logoResponse.arrayBuffer();
       const logoImage = await pdf.embedPng(logoBytes);
-      const logoHeight = 25; // Height in PDF units
-      const logoWidth = (logoImage.width / logoImage.height) * logoHeight; // Maintain aspect ratio
+      // Reduced logo size - aligned with section text
+      const logoWidth = 100;
+      const logoHeight = 15;
       
       page.drawImage(logoImage, {
         x: 50,
-        y: height - 55,
+        y: height - 45 - (logoHeight / 2) + 5, // Adjusted for 80px header
         width: logoWidth,
         height: logoHeight,
       });
     } else {
-      // Fallback to text if logo can't be loaded
+      // Fallback to text if logo can't be loaded (white text for dark header)
       page.drawText('NEXGEN', {
         x: 50,
-        y: height - 50,
-        size: 24,
+        y: height - 45,
+        size: 18,
         font: boldFont,
-        color: nexgenBlue,
+        color: rgb(1, 1, 1), // White text
       });
     }
   } catch (error) {
     console.warn('Failed to load logo, using text fallback:', error);
-    // Fallback to text if logo can't be loaded
+    // Fallback to text if logo can't be loaded (white text for dark header)
     page.drawText('NEXGEN', {
       x: 50,
-      y: height - 50,
-      size: 24,
+      y: height - 45,
+      size: 18,
       font: boldFont,
-      color: nexgenBlue,
+      color: rgb(1, 1, 1), // White text
     });
   }
 
-  // Section identifier (top right) - Using brand blue
+  // Section identifier (top right) - White text on dark header
   const sectionText = 'SECTION 06 16 26';
   const sectionWidth = font.widthOfTextAtSize(sectionText, 10);
-  page.drawRectangle({
-    x: width - 150,
-    y: height - 60,
-    width: 100,
-    height: 20,
-    color: nexgenBlue,
-  });
   page.drawText(sectionText, {
     x: width - 145,
-    y: height - 54,
+    y: height - 45,
     size: 10,
     font: boldFont,
-    color: rgb(1, 1, 1),
+    color: rgb(1, 1, 1), // White text
   });
 
-  // Title - Dynamic based on product type
-  const titleY = height - 100;
+  // Title - Dynamic based on product type (styled text OUTSIDE the dark header box)
+  // Color: #181819, Font: Regular (reduced boldness), Size: 18px, Line height: 100%, Letter spacing: -2%
+  const titleColor = rgb(0.094, 0.094, 0.098); // #181819
   const isStructuralFloor = projectData.productType === 'structural-floor';
   
   if (isStructuralFloor) {
     page.drawText('MAXTERRA® MgO Non-Combustible Structural', {
-      x: 50,
-      y: titleY,
-      size: 12,
-      font: font,
-      color: darkGray,
+      x: 55,
+      y: height - 147,
+      size: 18,
+      font: font, // Regular font (less bold)
+      color: titleColor,
+      lineHeight: 18, // 100% line height
     });
     page.drawText('Floor Panels Submittal Form', {
-      x: 50,
-      y: titleY - 15,
-      size: 12,
-      font: font,
-      color: darkGray,
+      x: 55,
+      y: height - 167,
+      size: 18,
+      font: font, // Regular font (less bold)
+      color: titleColor,
+      lineHeight: 18, // 100% line height
     });
   } else {
     // Underlayment
     page.drawText('MAXTERRA® MgO Non-Combustible', {
-      x: 50,
-      y: titleY,
-      size: 12,
-      font: font,
-      color: darkGray,
+      x: 55,
+      y: height - 147,
+      size: 18,
+      font: font, // Regular font (less bold)
+      color: titleColor,
+      lineHeight: 18, // 100% line height
     });
     page.drawText('Underlayment Panels Submittal Form', {
-      x: 50,
-      y: titleY - 15,
-      size: 12,
-      font: font,
-      color: darkGray,
+      x: 55,
+      y: height - 167,
+      size: 18,
+      font: font, // Regular font (less bold)
+      color: titleColor,
+      lineHeight: 18, // 100% line height
     });
   }
 
-  // Form fields start position
-  let currentY = titleY - 50;
-  const labelX = 50;
-  const valueX = 200;
-  const fieldHeight = 25;
-  const fieldWidth = width - valueX - 50;
+  // Form fields start position (aligned with title)
+  let currentY = height - 210;
+  const labelX = 55; // Same as title alignment
+  const valueX = 155; // Moved 50px more left (was 205, now 155)
+  const fieldHeight = 22; // Further reduced height to match image
+  const fieldWidth = width - valueX - 55;
+  const fieldSpacing = 4; // Reduced gap between fields
 
   // Helper function to draw form field
   const drawFormField = (label: string, value: string, y: number) => {
-    // Label
+    // Label text - Bold, black text (same style as Status / Action)
     page.drawText(label, {
       x: labelX,
-      y: y + 8,
+      y: y + 6,
       size: 10,
-      font: font,
-      color: darkGray,
+      font: boldFont, // Changed to bold font
+      color: darkGray, // Same color as Status / Action
     });
 
-    // Background box
+    // Value background box (light gray) - smaller height
     page.drawRectangle({
       x: valueX,
       y: y,
       width: fieldWidth,
       height: fieldHeight,
-      color: lightBlue,
-      borderColor: borderGray,
+      color: rgb(0.95, 0.95, 0.95), // Light gray #F2F2F2
+      borderColor: rgb(0.9, 0.9, 0.9),
       borderWidth: 0.5,
     });
 
-    // Value text
+    // Value text - smaller size
     page.drawText(value || '', {
-      x: valueX + 5,
-      y: y + 8,
+      x: valueX + 10,
+      y: y + 6,
       size: 10,
       font: font,
       color: rgb(0, 0, 0),
     });
-
-    // Bottom border line
-    page.drawLine({
-      start: { x: labelX, y: y },
-      end: { x: valueX + fieldWidth, y: y },
-      color: borderGray,
-      thickness: 0.5,
-    });
   };
 
-  // Draw form fields
+  // Draw form fields with spacing
   drawFormField('Submitted To', projectData.submittedTo, currentY);
-  currentY -= fieldHeight;
+  currentY -= (fieldHeight + fieldSpacing);
 
   drawFormField('Project Name', projectData.projectName, currentY);
-  currentY -= fieldHeight;
+  currentY -= (fieldHeight + fieldSpacing);
 
   drawFormField('Project Number', projectData.projectNumber || '', currentY);
-  currentY -= fieldHeight;
+  currentY -= (fieldHeight + fieldSpacing);
 
   drawFormField('Prepared By', projectData.preparedBy, currentY);
-  currentY -= fieldHeight;
+  currentY -= (fieldHeight + fieldSpacing);
 
   drawFormField('Phone/Email', `${projectData.phoneNumber} / ${projectData.emailAddress}`, currentY);
-  currentY -= fieldHeight;
+  currentY -= (fieldHeight + fieldSpacing);
 
   drawFormField('Date', projectData.date, currentY);
-  currentY -= fieldHeight + 10;
+  currentY -= (fieldHeight + 15);
 
   // Status/Action section with checkboxes
   page.drawText('Status / Action', {
@@ -542,40 +583,33 @@ async function addCoverPage(pdf: PDFDocument, projectData: ProjectData, selected
     font: boldFont,
     color: darkGray,
   });
-  currentY -= 20;
+  currentY -= 10; // Reduced from 20 to 10 (moved 10px up)
 
   const checkboxSize = 12;
   const checkboxSpacing = 130;
   let checkboxX = valueX;
 
   const drawCheckbox = (label: string, checked: boolean, x: number, y: number) => {
-    // Checkbox border
+    // Checkbox with light gray background (same as value fields)
     page.drawRectangle({
       x: x,
       y: y,
       width: checkboxSize,
       height: checkboxSize,
-      borderColor: borderGray,
-      borderWidth: 1,
+      color: rgb(0.95, 0.95, 0.95), // Light gray background like value fields
+      borderColor: rgb(0.9, 0.9, 0.9),
+      borderWidth: 0.5,
     });
 
-    // Checkbox background if checked
+    // Checkbox check mark if checked
     if (checked) {
-      page.drawRectangle({
-        x: x + 2,
-        y: y + 2,
-        width: checkboxSize - 4,
-        height: checkboxSize - 4,
-        color: nexgenBlue,
-      });
-
       // X mark
       page.drawText('X', {
         x: x + 3,
         y: y + 2,
         size: 9,
         font: boldFont,
-        color: rgb(1, 1, 1),
+        color: nexgenBlue,
       });
     }
 
@@ -583,17 +617,18 @@ async function addCoverPage(pdf: PDFDocument, projectData: ProjectData, selected
     page.drawText(label, {
       x: x + checkboxSize + 5,
       y: y + 2,
-      size: 9,
+      size: 10,
       font: font,
-      color: darkGray,
+      color: rgb(0, 0, 0),
     });
   };
 
-  drawCheckbox('For Review', projectData.status.forReview, checkboxX, currentY);
-  drawCheckbox('For Approval', projectData.status.forApproval, checkboxX + checkboxSpacing, currentY);
+  // Move checkboxes 3px up
+  drawCheckbox('For Review', projectData.status.forReview, checkboxX, currentY + 3);
+  drawCheckbox('For Approval', projectData.status.forApproval, checkboxX + checkboxSpacing, currentY + 3);
   currentY -= 18;
-  drawCheckbox('For Record', projectData.status.forRecord, checkboxX, currentY);
-  drawCheckbox('For Information Only', projectData.status.forInformationOnly, checkboxX + checkboxSpacing, currentY);
+  drawCheckbox('For Record', projectData.status.forRecord, checkboxX, currentY + 3);
+  drawCheckbox('For Information Only', projectData.status.forInformationOnly, checkboxX + checkboxSpacing, currentY + 3);
 
   currentY -= 30;
 
@@ -601,30 +636,30 @@ async function addCoverPage(pdf: PDFDocument, projectData: ProjectData, selected
   page.drawText('Submittal Type (check all that apply):', {
     x: labelX,
     y: currentY,
-    size: 10,
+    size: 15, // Increased from 10 to 15 (5px increase)
     font: boldFont,
     color: darkGray,
   });
   currentY -= 20;
 
-  // Draw ALL available documents from the category
+  // Draw ALL available documents from the category - aligned with "Submittal Type" label
   if (allAvailableDocuments && allAvailableDocuments.length > 0) {
     allAvailableDocuments.forEach((docName) => {
       // Check if this document is selected
       const isSelected = selectedDocumentNames?.includes(docName) || false;
-      drawCheckbox(docName, isSelected, valueX, currentY);
+      drawCheckbox(docName, isSelected, labelX, currentY); // Changed from valueX to labelX
     currentY -= 16;
   });
   } else if (selectedDocumentNames && selectedDocumentNames.length > 0) {
     // Fallback: if allAvailableDocuments not provided, show selected ones
     selectedDocumentNames.forEach((docName) => {
-      drawCheckbox(docName, true, valueX, currentY);
+      drawCheckbox(docName, true, labelX, currentY); // Changed from valueX to labelX
       currentY -= 16;
     });
   } else {
     // No documents at all
     page.drawText('No documents available', {
-      x: valueX,
+      x: labelX, // Changed from valueX to labelX
       y: currentY,
       size: 9,
       font: font,
@@ -905,19 +940,122 @@ async function addPageNumbers(pdf: PDFDocument) {
 }
 
 async function addProductInfoPage(pdf: PDFDocument, projectData: ProjectData) {
-  const page = pdf.addPage(PageSizes.Letter)
+  let page = pdf.addPage(PageSizes.Letter)
   const { width, height } = page.getSize()
   const font = await pdf.embedFont(StandardFonts.Helvetica)
   const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold)
 
   const isStructuralFloor = projectData.productType === 'structural-floor'
+  const headerDark = rgb(0.078, 0.078, 0.078) // #141414 - Dark header bar
+  
+  // Dark header bar at the top (full width, 80px height - reduced size)
+  page.drawRectangle({
+    x: 0,
+    y: height - 80,
+    width: width,
+    height: 80,
+    color: headerDark,
+  })
+
+  // NEXGEN Logo in header - White logo (same as cover page)
+  try {
+    const logoUrl = 'https://raw.githubusercontent.com/karthikeyanasha24/pdf-packet-6/main/public/image-white.png';
+    const logoResponse = await fetch(logoUrl);
+    if (logoResponse.ok) {
+      const logoBytes = await logoResponse.arrayBuffer();
+      const logoImage = await pdf.embedPng(logoBytes);
+      const logoWidth = 100;
+      const logoHeight = 15;
+      
+      page.drawImage(logoImage, {
+        x: 50,
+        y: height - 45 - (logoHeight / 2) + 5,
+        width: logoWidth,
+        height: logoHeight,
+      });
+    } else {
+      page.drawText('NEXGEN', {
+        x: 50,
+        y: height - 45,
+        size: 18,
+        font: boldFont,
+        color: rgb(1, 1, 1),
+      });
+    }
+  } catch (error) {
+    page.drawText('NEXGEN', {
+      x: 50,
+      y: height - 45,
+      size: 18,
+      font: boldFont,
+      color: rgb(1, 1, 1),
+    });
+  }
+
+  // Section identifier (top right)
+  const sectionText = isStructuralFloor ? 'SECTION 06 16 23' : 'SECTION 06 16 26';
+  page.drawText(sectionText, {
+    x: width - 145,
+    y: height - 45,
+    size: 10,
+    font: boldFont,
+    color: rgb(1, 1, 1),
+  });
+
+  // No title text - removed as requested
   
   const margin = 50
   const contentWidth = width - (margin * 2)
-  let currentY = height - 50
-  const lineHeight = 12
-  const sectionSpacing = 18
-  const paragraphSpacing = 10
+  let currentY = height - 100 // Start below the header
+  const lineHeight = 14 // Increased from 12 to 14 for better spacing
+  const sectionSpacing = 20 // Increased from 18 to 20
+  const paragraphSpacing = 15 // Increased from 10 to 15
+
+  // Helper function to add header to new pages
+  const addHeaderToPage = async (newPage: any) => {
+    // Dark header bar
+    newPage.drawRectangle({
+      x: 0,
+      y: height - 80,
+      width: width,
+      height: 80,
+      color: headerDark,
+    });
+
+    // Logo
+    try {
+      if (logoImageBytes) {
+        const newLogoImage = await pdf.embedPng(logoImageBytes);
+        const logoWidth = 100;
+        const logoHeight = 15;
+        
+        newPage.drawImage(newLogoImage, {
+          x: 50,
+          y: height - 45 - (logoHeight / 2) + 5,
+          width: logoWidth,
+          height: logoHeight,
+        });
+      }
+    } catch (error) {
+      newPage.drawText('NEXGEN', {
+        x: 50,
+        y: height - 45,
+        size: 18,
+        font: boldFont,
+        color: rgb(1, 1, 1),
+      });
+    }
+
+    // Section identifier
+    const sectionText = isStructuralFloor ? 'SECTION 06 16 23' : 'SECTION 06 16 26';
+    newPage.drawText(sectionText, {
+      x: width - 145,
+      y: height - 45,
+      size: 10,
+      font: boldFont,
+      color: rgb(1, 1, 1),
+    });
+  }
 
   // Helper function to draw text with word wrap
   const drawWrappedText = (text: string, x: number, y: number, maxWidth: number, fontSize: number, fontType: any): number => {
@@ -946,9 +1084,15 @@ async function addProductInfoPage(pdf: PDFDocument, projectData: ProjectData) {
     return yPos
   }
 
-  // Draw section heading
+  // Draw section heading - Manrope style with #4D4C4C color
   const drawSectionHeading = (heading: string, y: number): number => {
-    page.drawText(heading, { x: margin, y, size: 11, font: boldFont, color: rgb(0, 0, 0) })
+    page.drawText(heading, { 
+      x: margin, 
+      y, 
+      size: 11, 
+      font: boldFont, // Semibold weight
+      color: rgb(0.302, 0.298, 0.298) // #4D4C4C
+    })
     return y - sectionSpacing
   }
 
@@ -970,61 +1114,70 @@ async function addProductInfoPage(pdf: PDFDocument, projectData: ProjectData) {
     currentY -= paragraphSpacing
 
     // Continue on second page if needed
-    if (currentY < 200) {
-      const page2 = pdf.addPage(PageSizes.Letter)
-      currentY = height - 50
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter)
+      await addHeaderToPage(page)
+      currentY = height - 110
     }
 
-    // Specifications in two columns
-    currentY -= 10
-    const col1X = margin
-    const col2X = width / 2 + 20
-    const colWidth = (width / 2) - margin - 30
+    // Availability
+    currentY = drawSectionHeading('Availability', currentY)
+    currentY = drawWrappedText('MAXTERRA® MgO Non-Combustible Structural Floor Panels are available through NEXGEN Building Products authorized distribution partners nationwide. For purchasing information, technical support, or to locate a distributor near you, visit www.nexgenbp.com/find-rep-or-distributor or contact NEXGEN Building Products directly +1(727)620-3334.', margin, currentY, contentWidth, 9, font)
+    currentY -= paragraphSpacing
 
-    // Left column specifications
-    let leftY = currentY
-    leftY = drawSectionHeading('Available Thicknesses', leftY)
-    page.drawText('3/4-inch (20 mm)', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) })
-    leftY -= sectionSpacing
+    // Sound Attenuation (keep on same page as Availability)
+    currentY = drawSectionHeading('Sound Attenuation', currentY)
+    currentY = drawWrappedText('MAXTERRA® MgO Non-Combustible Structural Floor Panels have been evaluated in floor/ceiling assemblies for Sound Transmission Class (STC) in accordance with ASTM E90, and Impact Insulation Class (IIC) in accordance with ASTM E492. Evaluated assemblies are detailed in ICC-ES Listing Report ESL-1645.', margin, currentY, contentWidth, 9, font)
+    currentY -= 8
+    currentY = drawWrappedText('Please visit NEXGEN Building Products resource page to find most up-to-date assemblies:', margin, currentY, contentWidth, 9, font)
+    currentY -= 8
+    currentY = drawWrappedText('www.nexgenbp.com/resources', margin, currentY, contentWidth, 9, font)
+    currentY -= paragraphSpacing
 
-    leftY = drawSectionHeading('Available Lengths', leftY)
-    page.drawText('8 feet; 10 feet', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) })
-    leftY -= sectionSpacing
+    // Fire Resistance (keep on same page as Sound Attenuation)
+    currentY = drawSectionHeading('Fire Resistance', currentY)
+    currentY = drawWrappedText('MAXTERRA® MgO Non-Combustible Structural Floor Panels have been evaluated in floor/ceiling assemblies for fire-resistance in accordance with ASTM E119 (Standard Test Methods for Fire Tests of Building Construction and Materials) and ANSI/UL 263 (Fire Tests of Building Construction and Materials). Evaluated assemblies include: UL H501, UL H505, UL H515, UL H524, UL L502, UL L525, UL L528, & UL M500.', margin, currentY, contentWidth, 9, font)
+    currentY -= 8
+    currentY = drawWrappedText('Please visit NEXGEN Building Products resource page to find most up-to-date assemblies:', margin, currentY, contentWidth, 9, font)
+    currentY -= 8
+    currentY = drawWrappedText('www.nexgenbp.com/resources', margin, currentY, contentWidth, 9, font)
+    currentY -= paragraphSpacing
 
-    leftY = drawSectionHeading('Product Weight', leftY)
-    page.drawText('4.92 lb/sqft', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) })
-    leftY -= sectionSpacing
+    // Check for page break
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter)
+      await addHeaderToPage(page)
+      currentY = height - 110
+    }
 
-    leftY = drawSectionHeading('Edge Profile', leftY)
-    page.drawText('Tongue & Groove (TG), & Square Edge (SE)*', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) })
-    leftY -= sectionSpacing
+    // Floor Covering
+    currentY = drawSectionHeading('Floor Covering', currentY)
+    currentY = drawWrappedText('Many types of finished floor coverings can be installed over MAXTERRA® MgO Non-Combustible Structural Floor Panels. Before applying any floor covering, always check the flooring manufacturer\'s installation requirements and confirm compatibility with the substrate. Follow all requirements for primers, adhesives, mortars, self-levelers, underlayment, and related materials. Floor coverings commonly installed over MAXTERRA® panels include (but are not limited to): Engineered wood flooring, Vinyl, LVP, LVT, Carpet, & Tile (tile requires an additional tile backer underlayment). Refer to the MAXTERRA® MgO Non-Combustible Structural Floor Installation Guide for complete information regarding finished flooring installation: www.nexgenbp.com/resources', margin, currentY, contentWidth, 9, font)
+    currentY -= paragraphSpacing
 
-    leftY = drawSectionHeading('Mold / Mildew Resistance (ASTM G21)', leftY)
-    page.drawText('"0 Growth Observed"', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) })
-    leftY -= sectionSpacing
+    // Check for page break
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter)
+      await addHeaderToPage(page)
+      currentY = height - 110
+    }
 
-    // Right column specifications
-    let rightY = currentY
-    rightY = drawSectionHeading('Surface Burning Characteristics', rightY)
-    page.drawText('(ASTM E84 / UL 723)', { x: col2X, y: rightY, size: 8, font, color: rgb(0.3, 0.3, 0.3) })
-    rightY -= 12
-    page.drawText('Flame Spread Index: 0', { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) })
-    rightY -= 12
-    page.drawText('Smoke Developed Index: 0', { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) })
-    rightY -= sectionSpacing
+    // Fasteners
+    currentY = drawSectionHeading('Fasteners', currentY)
+    currentY = drawWrappedText('Fasteners used with MAXTERRA® MgO Non-Combustible Structural Floor Panels must be code-recognized and inherently resistant to corrosion, or factory-coated for corrosion resistance (electro-galvanized or better). Use only approved fasteners suitable for the specific assembly and substrate to ensure long-term performance.', margin, currentY, contentWidth, 9, font)
+    currentY -= 8
+    currentY = drawWrappedText('Refer to the MAXTERRA® MgO Non-Combustible Structural Floor Installation Guide for complete information regarding fastener schedules: www.nexgenbp.com/resources', margin, currentY, contentWidth, 9, font)
+    currentY -= paragraphSpacing
 
-    rightY = drawSectionHeading('STC / IIC Acoustic Performance', rightY)
-    page.drawText('(ASTM E90 and ASTM E492)', { x: col2X, y: rightY, size: 8, font, color: rgb(0.3, 0.3, 0.3) })
-    rightY -= 12
-    page.drawText('See ESL-1645', { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) })
-    rightY -= sectionSpacing
+    // Continue on second page if needed
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter)
+      await addHeaderToPage(page)
+      currentY = height - 110
+    }
 
-    rightY = drawSectionHeading('Allowable Exposure', rightY)
-    page.drawText('Up to 200 days', { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) })
-    rightY -= sectionSpacing
-
-    // Bottom section - Remarks and Approvals
-    currentY = Math.min(leftY, rightY) - 20
+    // Bottom section - Remarks and Approvals (Specifications section removed)
+    currentY -= 20
     
     currentY = drawSectionHeading('Remarks', currentY)
     page.drawRectangle({ x: margin, y: currentY - 40, width: contentWidth, height: 35, borderColor: rgb(0, 0, 0), borderWidth: 1 })
@@ -1063,7 +1216,9 @@ async function addProductInfoPage(pdf: PDFDocument, projectData: ProjectData) {
 
     // Applications
     currentY = drawSectionHeading('Applications', currentY)
-    currentY = drawWrappedText('MAXTERRA® MgO Fire- And Water-Resistant Underlayment Panels are engineered and tested for use across a wide range of flooring underlayment applications, delivering proven performance in sound control, fire resistance, and structural durability. MAXTERRA® provides a more durable and dimensionally stable solution and is ideally suited for multifamily, hospitality, modular, and other high-performance construction projects. MAXTERRA® MgO Fire- And Water-Resistant Underlayment Panels are recognized by the International Code Council Evaluation Service (ICC-ES) under Evaluation Report ESR-5192 and Listing Report ESL-1645.', margin, currentY, contentWidth, 9, font)
+    currentY = drawWrappedText('MAXTERRA® MgO Fire- And Water-Resistant Underlayment Panels are engineered and tested for use across a wide range of flooring underlayment applications, delivering proven performance in sound control, fire resistance, and structural durability. MAXTERRA® provides a more durable and dimensionally stable solution and is ideally suited for multifamily, hospitality, modular, and other high-performance construction projects.', margin, currentY, contentWidth, 9, font)
+    currentY -= 8
+    currentY = drawWrappedText('MAXTERRA® MgO Fire- And Water-Resistant Underlayment Panels are recognized by the International Code Council Evaluation Service (ICC-ES) under Evaluation Report ESR-5192 and Listing Report ESL-1645.', margin, currentY, contentWidth, 9, font)
     currentY -= paragraphSpacing
 
     // Skip-the-Gyp
@@ -1072,62 +1227,72 @@ async function addProductInfoPage(pdf: PDFDocument, projectData: ProjectData) {
     currentY -= paragraphSpacing
 
     // Continue on second page if needed
-    if (currentY < 200) {
-      const page2 = pdf.addPage(PageSizes.Letter)
-      currentY = height - 50
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter)
+      await addHeaderToPage(page)
+      currentY = height - 110
     }
 
-    // Specifications in two columns
-    currentY -= 10
-    const col1X = margin
-    const col2X = width / 2 + 20
+    // Availability
+    currentY = drawSectionHeading('Availability', currentY)
+    currentY = drawWrappedText('MAXTERRA® MgO Fire- And Water-Resistant Underlayment Panels are available through NEXGEN Building Products authorized distribution partners nationwide. For purchasing information, technical support, or to locate a distributor near you, visit www.nexgenbp.com/find-rep-or-distributor or contact NEXGEN Building Products directly +1(727)620-3334.', margin, currentY, contentWidth, 9, font)
+    currentY -= paragraphSpacing
 
-    // Left column
-    let leftY = currentY
-    leftY = drawSectionHeading('Available Thicknesses', leftY)
-    page.drawText('1/2" (12 mm), & 5/8" (16 mm)', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) })
-    leftY -= sectionSpacing
+    // Sound Attenuation (keep on same page as Availability)
+    currentY = drawSectionHeading('Sound Attenuation', currentY)
+    currentY = drawWrappedText('MAXTERRA® MgO Fire- And Water-Resistant Underlayment Panels have been evaluated in floor/ceiling assemblies for Sound Transmission Class (STC) in accordance with ASTM E90, and Impact Insulation Class (IIC) in accordance with ASTM E492. Evaluated assemblies for underlayment are detailed in Report ESL-1645.', margin, currentY, contentWidth, 9, font)
+    currentY -= 8
+    currentY = drawWrappedText('Please visit NEXGEN Building Products resource page to find most up-to-date assemblies:', margin, currentY, contentWidth, 9, font)
+    currentY -= 8
+    currentY = drawWrappedText('www.nexgenbp.com/resources', margin, currentY, contentWidth, 9, font)
+    currentY -= paragraphSpacing
 
-    leftY = drawSectionHeading('Available Dimensions', leftY)
-    page.drawText('4 feet x 8 feet', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) })
-    leftY -= sectionSpacing
+    // Fire Resistance (keep on same page as Sound Attenuation)
+    currentY = drawSectionHeading('Fire Resistance', currentY)
+    currentY = drawWrappedText('MAXTERRA® MgO Fire- And Water-Resistant Underlayment Panels have been evaluated in floor/ceiling assemblies for fire-resistance in accordance with ASTM E119 (Standard Test Methods for Fire Tests of Building Construction and Materials) and ANSI/UL 263 (Fire Tests of Building Construction and Materials). UL L501, UL L502, UL L525, UL L528, UL L570, UL L602, & UL M500.', margin, currentY, contentWidth, 9, font)
+    currentY -= 8
+    currentY = drawWrappedText('Please visit NEXGEN Building Products resource page to find most up-to-date assemblies:', margin, currentY, contentWidth, 9, font)
+    currentY -= 8
+    currentY = drawWrappedText('www.nexgenbp.com/resources', margin, currentY, contentWidth, 9, font)
+    currentY -= paragraphSpacing
 
-    leftY = drawSectionHeading('Product Weight', leftY)
-    page.drawText('1/2" (12 mm): 2.22 lb/sqft', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) })
-    leftY -= 12
-    page.drawText('5/8" (16 mm): 2.95 lb/sqft', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) })
-    leftY -= sectionSpacing
+    // Check for page break
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter)
+      await addHeaderToPage(page)
+      currentY = height - 110
+    }
 
-    leftY = drawSectionHeading('Edge Profile', leftY)
-    page.drawText('Square Edge (SE)', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) })
-    leftY -= sectionSpacing
+    // Floor Covering
+    currentY = drawSectionHeading('Floor Covering', currentY)
+    currentY = drawWrappedText('Many types of finished floor coverings can be installed over MAXTERRA® MgO Fire- And Water-Resistant Underlayment Panels. Before applying any floor covering, always check the flooring manufacturer\'s installation requirements and confirm compatibility with the substrate. Follow all requirements for primers, adhesives, mortars, feathering compounds, and related materials.', margin, currentY, contentWidth, 9, font)
+    currentY -= 8
+    currentY = drawWrappedText('Floor coverings commonly installed over MAXTERRA® panels include (but are not limited to): Carpet, Engineered wood flooring, Vinyl, LVP, LVT, & Tile (tile requires an additional tile backer underlayment).', margin, currentY, contentWidth, 9, font)
+    currentY -= 8
+    currentY = drawWrappedText('Refer to the MAXTERRA® Underlayment Installation Manual for complete information regarding finished flooring installation.', margin, currentY, contentWidth, 9, font)
+    currentY -= paragraphSpacing
 
-    leftY = drawSectionHeading('Construction Types', leftY)
-    page.drawText('Types III, IV-C, IV-HT, and V', { x: col1X, y: leftY, size: 9, font, color: rgb(0, 0, 0) })
-    leftY -= sectionSpacing
+    // Check for page break
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter)
+      await addHeaderToPage(page)
+      currentY = height - 110
+    }
 
-    // Right column
-    let rightY = currentY
-    rightY = drawSectionHeading('Surface Burning Characteristics', rightY)
-    page.drawText('(ASTM E84 / UL 723)', { x: col2X, y: rightY, size: 8, font, color: rgb(0.3, 0.3, 0.3) })
-    rightY -= 12
-    page.drawText('Flame Spread Index: 0', { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) })
-    rightY -= 12
-    page.drawText('Smoke Developed Index: 0', { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) })
-    rightY -= sectionSpacing
+    // Fasteners
+    currentY = drawSectionHeading('Fasteners', currentY)
+    currentY = drawWrappedText('Fasteners used with MAXTERRA® MgO Fire- And Water-Resistant Underlayment Panels must be code-recognized and inherently resistant to corrosion, or factory-coated for corrosion resistance (electro-galvanized or better). Use only approved fasteners suitable for the specific assembly and substrate to ensure long-term performance. Refer to the MAXTERRA® MgO Fire- And Water-Resistant Underlayment Installation Manual for complete information regarding fastener schedules.', margin, currentY, contentWidth, 9, font)
+    currentY -= paragraphSpacing
 
-    rightY = drawSectionHeading('STC / IIC Acoustic Performance', rightY)
-    page.drawText('(ASTM E90 and ASTM E492)', { x: col2X, y: rightY, size: 8, font, color: rgb(0.3, 0.3, 0.3) })
-    rightY -= 12
-    page.drawText('See ESL-1645', { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) })
-    rightY -= sectionSpacing
+    // Continue on second page if needed
+    if (currentY < 300) {
+      page = pdf.addPage(PageSizes.Letter)
+      await addHeaderToPage(page)
+      currentY = height - 110
+    }
 
-    rightY = drawSectionHeading('Allowable Exposure', rightY)
-    page.drawText('Up to 200 days', { x: col2X, y: rightY, size: 9, font, color: rgb(0, 0, 0) })
-    rightY -= sectionSpacing
-
-    // Bottom section
-    currentY = Math.min(leftY, rightY) - 20
+    // Bottom section - Remarks and Approvals (Specifications section removed)
+    currentY -= 20
     
     currentY = drawSectionHeading('Remarks', currentY)
     page.drawRectangle({ x: margin, y: currentY - 40, width: contentWidth, height: 35, borderColor: rgb(0, 0, 0), borderWidth: 1 })
@@ -1157,4 +1322,268 @@ async function addProductInfoPage(pdf: PDFDocument, projectData: ProjectData) {
     page.drawText('Signature ________________________', { x: margin, y: currentY, size: 9, font, color: rgb(0, 0, 0) })
     page.drawText('Date ____________', { x: margin + 250, y: currentY, size: 9, font, color: rgb(0, 0, 0) })
   }
+}
+
+// TABLE OF CONTENTS PAGE
+async function createTableOfContents(pdf: PDFDocument, sections: DocumentSection[], tocPageNumber: number): Promise<PDFPage> {
+  const page = pdf.addPage(PageSizes.Letter)
+  const { width, height } = page.getSize()
+  const font = await pdf.embedFont(StandardFonts.Helvetica)
+  const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold)
+  const headerDark = rgb(0.078, 0.078, 0.078) // #141414
+
+  // Dark header bar (80px height)
+  page.drawRectangle({
+    x: 0,
+    y: height - 80,
+    width: width,
+    height: 80,
+    color: headerDark,
+  })
+
+  // Logo (same as cover page)
+  try {
+    const logoUrl = 'https://raw.githubusercontent.com/karthikeyanasha24/pdf-packet-6/main/public/image-white.png'
+    const logoResponse = await fetch(logoUrl)
+    if (logoResponse.ok) {
+      const logoBytes = await logoResponse.arrayBuffer()
+      const logoImage = await pdf.embedPng(logoBytes)
+      page.drawImage(logoImage, {
+        x: 50,
+        y: height - 45 - (15 / 2) + 5,
+        width: 100,
+        height: 15,
+      })
+    }
+  } catch (error) {
+    page.drawText('NEXGEN', {
+      x: 50,
+      y: height - 45,
+      size: 18,
+      font: boldFont,
+      color: rgb(1, 1, 1),
+    })
+  }
+
+  // Title in header
+  page.drawText('Table of Contents', {
+    x: width - 180,
+    y: height - 45,
+    size: 11,
+    font: boldFont,
+    color: rgb(1, 1, 1),
+  })
+
+  // Content area - start well below the dark header (80px high)
+  let currentY = height - 110 // Increased from 100 to 110 to give more space
+  const margin = 50
+  const lineHeight = 25
+
+  // "Table of Contents" heading on the page
+  page.drawText('Table of Contents', {
+    x: margin,
+    y: currentY,
+    size: 18,
+    font: boldFont,
+    color: rgb(0.094, 0.094, 0.098), // #181819 - same as main titles
+  })
+  currentY -= 30 // Space after heading
+
+  sections.forEach((section) => {
+    if (currentY < 100) {
+      return // Would need pagination for very long TOCs
+    }
+
+    // Document name
+    const maxNameWidth = width - 200
+    let displayName = section.name
+    const nameWidth = font.widthOfTextAtSize(displayName, 11)
+    if (nameWidth > maxNameWidth) {
+      // Truncate if too long
+      while (font.widthOfTextAtSize(displayName + '...', 11) > maxNameWidth && displayName.length > 10) {
+        displayName = displayName.substring(0, displayName.length - 1)
+      }
+      displayName += '...'
+    }
+
+    page.drawText(displayName, {
+      x: margin,
+      y: currentY,
+      size: 11,
+      font: font,
+      color: rgb(0, 0, 0),
+    })
+
+    // Dotted line
+    const dots = '.'
+    const dotsStartX = margin + font.widthOfTextAtSize(displayName, 11) + 10
+    const dotsEndX = width - 100
+    const dotsWidth = font.widthOfTextAtSize(dots, 11)
+    let currentX = dotsStartX
+    while (currentX < dotsEndX) {
+      page.drawText(dots, {
+        x: currentX,
+        y: currentY,
+        size: 11,
+        font: font,
+        color: rgb(0.6, 0.6, 0.6),
+      })
+      currentX += dotsWidth + 3
+    }
+
+    // Page number
+    page.drawText(`Page ${section.startPage}`, {
+      x: width - 90,
+      y: currentY,
+      size: 11,
+      font: boldFont,
+      color: rgb(0, 0, 0),
+    })
+
+    currentY -= lineHeight
+  })
+
+  return page
+}
+
+// SECTION DIVIDER PAGE
+async function addSectionDivider(pdf: PDFDocument, documentName: string, documentType: string): Promise<void> {
+  const page = pdf.addPage(PageSizes.Letter)
+  const { width, height } = page.getSize()
+  const font = await pdf.embedFont(StandardFonts.Helvetica)
+  const boldFont = await pdf.embedFont(StandardFonts.HelveticaBold)
+  const headerDark = rgb(0.078, 0.078, 0.078) // #141414
+
+  // Dark header bar (80px height)
+  page.drawRectangle({
+    x: 0,
+    y: height - 80,
+    width: width,
+    height: 80,
+    color: headerDark,
+  })
+
+  // Logo (same as cover page)
+  try {
+    const logoUrl = 'https://raw.githubusercontent.com/karthikeyanasha24/pdf-packet-6/main/public/image-white.png'
+    const logoResponse = await fetch(logoUrl)
+    if (logoResponse.ok) {
+      const logoBytes = await logoResponse.arrayBuffer()
+      const logoImage = await pdf.embedPng(logoBytes)
+      page.drawImage(logoImage, {
+        x: 50,
+        y: height - 45 - (15 / 2) + 5,
+        width: 100,
+        height: 15,
+      })
+    }
+  } catch (error) {
+    page.drawText('NEXGEN', {
+      x: 50,
+      y: height - 45,
+      size: 18,
+      font: boldFont,
+      color: rgb(1, 1, 1),
+    })
+  }
+
+  // Section title in header
+  page.drawText('Document Section', {
+    x: width - 180,
+    y: height - 45,
+    size: 11,
+    font: font,
+    color: rgb(1, 1, 1),
+  })
+
+  // Main content - Document name centered
+  const centerY = height / 2
+  
+  // Document name (large, centered)
+  const nameSize = 24
+  const nameWidth = boldFont.widthOfTextAtSize(documentName, nameSize)
+  page.drawText(documentName, {
+    x: (width - nameWidth) / 2,
+    y: centerY + 20,
+    size: nameSize,
+    font: boldFont,
+    color: rgb(0.13, 0.13, 0.13),
+  })
+
+  // Document type (smaller, centered, below name)
+  const typeSize = 14
+  const typeWidth = font.widthOfTextAtSize(documentType, typeSize)
+  page.drawText(documentType, {
+    x: (width - typeWidth) / 2,
+    y: centerY - 20,
+    size: typeSize,
+    font: font,
+    color: rgb(0.4, 0.4, 0.4),
+  })
+
+  // Decorative line
+  const lineWidth = 200
+  page.drawLine({
+    start: { x: (width - lineWidth) / 2, y: centerY - 50 },
+    end: { x: (width + lineWidth) / 2, y: centerY - 50 },
+    thickness: 2,
+    color: rgb(0, 0.637, 0.792), // NexGen blue
+  })
+}
+
+// SELECTIVE PAGE NUMBERING (only submittal form, product info, TOC, and section dividers)
+async function addSelectivePageNumbers(pdf: PDFDocument, submittalAndProductInfoPageCount: number, sections: DocumentSection[]): Promise<void> {
+  const pages = pdf.getPages()
+  const font = await pdf.embedFont(StandardFonts.Helvetica)
+  
+  let globalPageNumber = 1
+  
+  // 1. Add page numbers to Submittal Form + Product Info pages
+  for (let i = 0; i < submittalAndProductInfoPageCount && i < pages.length; i++) {
+    const page = pages[i]
+    const { width } = page.getSize()
+    page.drawText(`${globalPageNumber}`, {
+      x: width - 50,
+      y: 30,
+      size: 10,
+      font: font,
+      color: rgb(0.4, 0.4, 0.4),
+    })
+    globalPageNumber++
+  }
+  
+  // 2. Add page number to Table of Contents (inserted at submittalAndProductInfoPageCount position)
+  if (pages.length > submittalAndProductInfoPageCount) {
+    const tocPage = pages[submittalAndProductInfoPageCount]
+    const { width } = tocPage.getSize()
+    tocPage.drawText(`${globalPageNumber}`, {
+      x: width - 50,
+      y: 30,
+      size: 10,
+      font: font,
+      color: rgb(0.4, 0.4, 0.4),
+    })
+    globalPageNumber++
+  }
+  
+  // 3. Add page numbers to Section Dividers only (not the actual documents)
+  let currentIndex = submittalAndProductInfoPageCount + 1 // After TOC
+  sections.forEach(section => {
+    if (currentIndex < pages.length) {
+      // Add page number to section divider
+      const dividerPage = pages[currentIndex]
+      const { width } = dividerPage.getSize()
+      dividerPage.drawText(`${globalPageNumber}`, {
+        x: width - 50,
+        y: 30,
+        size: 10,
+        font: font,
+        color: rgb(0.4, 0.4, 0.4),
+      })
+      globalPageNumber++
+      
+      // Skip the actual document pages (don't add page numbers to them)
+      currentIndex += section.pageCount
+    }
+  })
 }
